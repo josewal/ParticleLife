@@ -40,7 +40,7 @@ public class Enviroment {
 
 	public void setupParticles() {
 		ParticleFactory pFact = ParticleFactory.getInstance();
-		loadParticleList(pFact.createParticleList(conf.amounts, conf.forces, conf.colors));
+		loadParticleList(pFact.createParticleListFromMatrix(conf.amounts, conf.forceMatrix));
 	}
 	
 	public void loadParticleList(List<Particle> particles) {
@@ -83,7 +83,7 @@ public class Enviroment {
 	public Vector2D calculateInteraction(Particle acting, Particle on) {
 		Vector2D relativePos = Vector2D.subtract(on.getPos(), acting.getPos());
 		Vector2D relativeVel = Vector2D.subtract(on.getVel(), acting.getVel());
-		Vector2D force = acting.force.getForceVector(relativePos, relativeVel);
+		Vector2D force = acting.force.getForceVector(relativePos, relativeVel, on.color);
 		return force;
 	}
 	
@@ -98,18 +98,19 @@ public class Enviroment {
 		zeroOutInteractions();
 		
 		for (int i = 0; i < particles.size(); i++) {
-			Particle actingOn = particles.get(i);
+			Particle acter = particles.get(i);
 
-			double queryX = actingOn.getX() - actingOn.force.rMax;
-			double queryY = actingOn.getY() - actingOn.force.rMax;
+			double forceRadius = acter.force.maxRadius;
+			double queryX = acter.getX() - forceRadius;
+			double queryY = acter.getY() - forceRadius;
 
-			Set<Particle> acters = shGrid.elementsInRectQuery(queryX, queryY, 2*actingOn.force.rMax,
-					2*actingOn.force.rMax);
+			Set<Particle> actingOnParticles = shGrid.elementsInRectQuery(queryX, queryY, 2*forceRadius,
+					2*forceRadius);
 
-			for (Particle acter : acters) {
+			for (Particle actingOn : actingOnParticles) {
 				if(acter != actingOn) {
 					Vector2D interaction = calculateInteraction(acter, actingOn);
-					particleInteractions.get(i).add(interaction);
+					actingOn.applyForce(interaction);
 				}
 			}
 		}

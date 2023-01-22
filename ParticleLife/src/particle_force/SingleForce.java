@@ -1,40 +1,42 @@
-package particle;
+package particle_force;
 
 import java.awt.Color;
 
 import vector.Vector2D;
 
-public class ParticleForce {
-	public double rMin;
-	public double rMid;
-	public double rMax;
-	public double midCharge;
-	public double repulsionCharge;
+public class SingleForce {
+	public double minRadius;
+	public double midRadius;
+	public double maxRadius;
+	
+	public double chargeAtMidDist;
+	public double chargeAtZeroDist;
 
-	public Color midColor = new Color(255, 0, 0, 50);
+	public Color color;
 
-	public ParticleForce(double rMin, double rMax, double repulsionCharge, double midCharge) {
+	public SingleForce(double rMin, double rMax, double repulsionCharge, double midCharge, Color color) {
 		super();
 		if (rMin >= rMax) {
 			throw new Error("rMin >= rMax");
 		}
 
-		this.rMin = rMin;
-		this.rMid = (rMin + rMax) / 2;
-		this.rMax = rMax;
-		this.midCharge = midCharge;
-		this.repulsionCharge = repulsionCharge;
+		this.minRadius = rMin;
+		this.midRadius = (rMin + rMax) / 2;
+		this.maxRadius = rMax;
+		this.chargeAtMidDist = midCharge;
+		this.chargeAtZeroDist = repulsionCharge;
+		this.color = color;
 	}
 
 	public double getStrength(double dist) {
-		if (dist < rMin) {
-			return -(dist - rMin) / (rMin - 0) * repulsionCharge;
+		if (dist < minRadius) {
+			return -(dist - minRadius) / (minRadius - 0) * chargeAtZeroDist;
 		}
-		if (dist < rMid) {
-			return (dist - rMin) / (rMid - rMin) * midCharge;
+		if (dist < midRadius) {
+			return (dist - minRadius) / (midRadius - minRadius) * chargeAtMidDist;
 		}
-		if (dist < rMax) {
-			return -(dist - rMax) / (rMax - rMid) * midCharge;
+		if (dist < maxRadius) {
+			return -(dist - maxRadius) / (maxRadius - midRadius) * chargeAtMidDist;
 		}
 		return 0;
 	}

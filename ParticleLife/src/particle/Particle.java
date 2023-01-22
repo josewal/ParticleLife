@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 
 import camera.Camera;
 import hashgrid.ISpatial;
+import particle_force.MultiForce;
 import vector.Vector2D;
 
 public class Particle implements ISpatial {	
@@ -12,11 +13,11 @@ public class Particle implements ISpatial {
 	private Vector2D vel;
 	private Vector2D acc;
 	
-	public ParticleForce force;
+	public MultiForce force;
 	
-	private Color color;
+	public Color color;
 	
-	public Particle(ParticleForce force, Color color) {
+	public Particle(MultiForce force, Color color) {
 		super();
 		this.force = force;
 		
@@ -44,7 +45,7 @@ public class Particle implements ISpatial {
 		this.pos.y = y;
 	}
 	
-	public void setForce(ParticleForce force) {
+	public void setForce(MultiForce force) {
 		this.force = force;
 	}
 
@@ -81,27 +82,27 @@ public class Particle implements ISpatial {
 	public void draw(Graphics2D g2, Camera c) {
 //		drawForce(g2, c);
 		
-		int screenX = (int) (pos.x - force.rMin/4 - c.worldX);
-		int screenY = (int) (pos.y - force.rMin/4 - c.worldY);
+		int screenX = (int) (pos.x - force.avgMinRadius/6 - c.worldX);
+		int screenY = (int) (pos.y - force.avgMinRadius/6 - c.worldY);
 				
 		g2.setColor(color);
-		g2.fillOval(screenX, screenY,(int) force.rMin/2,(int) force.rMin/2);
+		g2.fillOval(screenX, screenY,(int) force.avgMinRadius/3, (int) force.avgMinRadius/3);
 	}
 	
 	public void drawForce(Graphics2D g2, Camera c) {
-		int screenX = (int) (pos.x - force.rMax - c.worldX);
-		int screenY = (int) (pos.y - force.rMax - c.worldY);
+		int screenX = (int) (pos.x - force.maxRadius - c.worldX);
+		int screenY = (int) (pos.y - force.maxRadius - c.worldY);
 
-		g2.setColor(force.midColor);
-		g2.fillOval(screenX, screenY,(int) (2*force.rMax),(int) (2*force.rMax));
+//		g2.setColor(force.midColor);
+		g2.fillOval(screenX, screenY,(int) (2*force.maxRadius),(int) (2*force.maxRadius));
 	}
 	
 	public void highlight(Graphics2D g2, Camera cam, Color clr) {
-		int screenX = (int) (pos.x - force.rMin/4 - cam.worldX);
-		int screenY = (int) (pos.y - force.rMin/4 - cam.worldY);
+		int screenX = (int) (pos.x - force.avgMinRadius/6 - cam.worldX);
+		int screenY = (int) (pos.y - force.avgMinRadius/6 - cam.worldY);
 
 		g2.setColor(clr);
-		g2.fillOval(screenX, screenY,(int) force.rMin/2,(int) force.rMin/2);
+		g2.fillOval(screenX, screenY,(int) force.avgMinRadius/3,(int) force.avgMinRadius/3);
 
 	}
 	
