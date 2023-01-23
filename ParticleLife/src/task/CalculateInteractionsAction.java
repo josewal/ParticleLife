@@ -7,36 +7,33 @@ import enviroment.Enviroment;
 import particle.Particle;
 import vector.Vector2D;
 
-public class CalculateInteractionsTask extends RecursiveAction{
+public class CalculateInteractionsAction extends RecursiveAction {
 	private static final long serialVersionUID = 1L;
-	
+
 	private Enviroment env;
 	private int from;
 	private int to;
-		
-	
-	public CalculateInteractionsTask(Enviroment env, int from, int to) {
+
+	public CalculateInteractionsAction(Enviroment env, int from, int to) {
 		super();
 		this.env = env;
 		this.from = from;
 		this.to = to;
 	}
 
-
 	@Override
 	protected void compute() {
-		if(to - from < 10) {
+		if (to - from < 10) {
 			calculateInteractions();
-		}else {
-			int middle = (to-from/2);
+		} else {
+			int middle = (to - from / 2);
 //			System.out.printf("Task: Pending tasks: %s\n", getQueuedTaskCount());
-			CalculateInteractionsTask t1 = new CalculateInteractionsTask(env, from, middle+1);
-			CalculateInteractionsTask t2 = new CalculateInteractionsTask(env, middle+1, to);
-			invokeAll(t1,t2);
+			CalculateInteractionsAction t1 = new CalculateInteractionsAction(env, from, middle + 1);
+			CalculateInteractionsAction t2 = new CalculateInteractionsAction(env, middle + 1, to);
+			invokeAll(t1, t2);
 		}
 	}
-	
-	
+
 	private void calculateInteractions() {
 		for (int i = from; i < to; i++) {
 			Particle acter = env.particles.get(i);
@@ -51,10 +48,16 @@ public class CalculateInteractionsTask extends RecursiveAction{
 			for (Particle actingOn : actingOnParticles) {
 				if (acter != actingOn) {
 					Vector2D interaction = env.calculateInteraction(acter, actingOn);
-					env.particleInteractions.put(actingOn, interaction);
+					if (interaction.getLengthSq() != 0) {
+						Vector2D netInteraction = env.particleInteractions.get(actingOn);
+						if (netInteraction == null) {
+							env.particleInteractions.put(actingOn, interaction);
+						} else {
+							netInteraction.add(interaction);
+						}
+					}
 				}
 			}
 		}
 	}
-
 }
