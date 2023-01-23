@@ -6,7 +6,6 @@ import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import camera.Camera;
@@ -28,7 +27,7 @@ public class Enviroment {
 	public Enviroment() {
 		airResistanceVectors = new ArrayList<>();
 		particleInteractions = new HashMap<>();
-		
+
 		particles = new ArrayList<>();
 
 		setupSHGrid();
@@ -76,7 +75,7 @@ public class Enviroment {
 	}
 
 	private void applyParticleInteractionsVectors() {
-		for (Map.Entry<Particle, Vector2D> interaction : particleInteractions.entrySet()) {
+		for (HashMap.Entry<Particle, Vector2D> interaction : particleInteractions.entrySet()) {
 			Particle particle = interaction.getKey();
 			Vector2D force = interaction.getValue();
 			particle.applyForce(force);
@@ -131,7 +130,14 @@ public class Enviroment {
 			for (Particle actingOn : actingOnParticles) {
 				if (acter != actingOn) {
 					Vector2D interaction = calculateInteraction(acter, actingOn);
-					particleInteractions.put(actingOn, interaction);
+					if (interaction.getLengthSq() != 0) {
+						Vector2D netInteraction = particleInteractions.get(actingOn);
+						if (netInteraction == null) {
+							particleInteractions.put(actingOn, interaction);
+						} else {
+							netInteraction.add(interaction);
+						}
+					}
 				}
 			}
 		}
@@ -143,7 +149,7 @@ public class Enviroment {
 
 		calculateInteractions();
 		applyParticleInteractionsVectors();
-		
+
 		updateParticles(dt);
 
 		boundParticles();

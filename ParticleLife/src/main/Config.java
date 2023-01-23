@@ -33,8 +33,8 @@ public class Config {
 	public int UPF = 1; // updates per frame
 
 	// ENV PARAMS
-	public final double envWidth = 2000;
-	public final double envHeight = 2000;
+	public final double envWidth = 1000;
+	public final double envHeight = 1000;
 	public final boolean envWrapped = true;
 	
 	public double airResistanceCoef = 0.01;
@@ -56,9 +56,9 @@ public class Config {
 	public final double cameraDefaultZoom = Math.min((screenWidth-50)/envWidth,(screenHeight-50)/envHeight);
 
 	// PARTICLE SET
-	public int[] startAmounts = { 500, 500, 500 };
+	public int[] startAmounts = { 100, 100, 0 };
 	public SingleForce redOnRed = new SingleForce(25, 100, 40, -1, Color.RED);
-	public SingleForce redOnGreen = new SingleForce(25, 50, 10, 1, Color.GREEN);
+	public SingleForce redOnGreen = new SingleForce(25, 300, 10, -1, Color.GREEN);
 	public SingleForce redOnBlue = new SingleForce(25, 50, 10, 1, Color.BLUE);
 
 	public SingleForce greenOnRed = new SingleForce(25, 50, 20, -1, Color.RED);
