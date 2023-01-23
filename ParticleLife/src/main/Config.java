@@ -58,7 +58,7 @@ public class Config {
 	// PARTICLE SET
 	public int[] startAmounts = { 100, 100, 0 };
 	public SingleForce redOnRed = new SingleForce(25, 100, 40, -1, Color.RED);
-	public SingleForce redOnGreen = new SingleForce(25, 300, 10, -1, Color.GREEN);
+	public SingleForce redOnGreen = new SingleForce(25, 50, 10, 1, Color.GREEN);
 	public SingleForce redOnBlue = new SingleForce(25, 50, 10, 1, Color.BLUE);
 
 	public SingleForce greenOnRed = new SingleForce(25, 50, 20, -1, Color.RED);
