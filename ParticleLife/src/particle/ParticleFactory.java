@@ -33,7 +33,7 @@ public class ParticleFactory {
 	
 	public Particle createRandomWorldPosRandomVelParticle(MultiForce force, Color color) {
 		Vector2D randomPos = Vector2D.randomInRange(0, conf.envWidth, 0, conf.envWidth);
-		Vector2D randomVel = Vector2D.randomInRange(-5, 5, -5, 5);
+		Vector2D randomVel = Vector2D.randomInRange(-10, 10, -10, 10);
 		return createParticle(randomPos, randomVel, force, color);
 	}
 	

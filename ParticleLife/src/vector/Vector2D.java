@@ -1,8 +1,13 @@
 package vector;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class Vector2D {
+import camera.Camera;
+
+public class Vector2D implements Comparable<Vector2D>{
 
     public double x;
     public double y;
@@ -250,4 +255,20 @@ public class Vector2D {
     public String toString() {
         return "Vector2d[" + x + ", " + y + "]";
     }
+
+	@Override
+	public int compareTo(Vector2D o) {
+		double thisLength = this.getLengthSq();
+		double oLength = o.getLengthSq();
+		
+		if(thisLength < oLength) {
+			return -1;
+		}
+		
+		if(thisLength == oLength) {
+			return 0;
+		}
+		
+		return 1;
+	}
 }

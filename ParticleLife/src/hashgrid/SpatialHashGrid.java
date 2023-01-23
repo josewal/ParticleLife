@@ -165,17 +165,24 @@ public class SpatialHashGrid<T extends ISpatial> {
 	public void draw(Graphics2D g2, Camera c) {
 		for (int col = 0; col < cols; col++) {
 			for (int row = 0; row < rows; row++) {
+				
+				int width = c.zoomElongation(cellSize);
+				int screenX = c.getFrameX(col * cellSize);
+				int screenY = c.getFrameY(row * cellSize);
+				
 				g2.setColor(Color.YELLOW);
-				g2.drawRect((int) (col * cellSize) - (int) c.worldX, (int) (row * cellSize) - (int) c.worldY,
-						(int) cellSize, (int) cellSize);
+				g2.drawRect(screenX, screenY,width,width);
 			}
 		}
 
 	}
 
 	public void highlightCell(Graphics2D g2, Camera c, int col, int row) {
+		int width = c.zoomElongation(cellSize);
+		int screenX = c.getFrameX(col * cellSize);
+		int screenY = c.getFrameY(row * cellSize);
+		
 		g2.setColor(new Color(50,50,150));
-		g2.fillRect((int) (col * cellSize) - (int) c.worldX, (int) (row * cellSize) - (int) c.worldY, (int) cellSize,
-				(int) cellSize);
+		g2.drawRect(screenX, screenY,width,width);
 	}
 }

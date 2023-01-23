@@ -16,17 +16,18 @@ import particle.Particle;
 public class SimulationPanel extends JPanel implements Runnable {
 
 	private static final long serialVersionUID = 1L;
-	
-	Config conf = Config.getInstance();
-	
-	Thread simThread;
 
-	KeyHandler keyH = new KeyHandler();
+	Config conf = Config.getInstance();
+
+	Thread simThread;
+	int drawCount;
+
+	public UI ui = new UI(this);
+	public KeyHandler keyH = new KeyHandler(this);
+	public SimState state = new SimState(this);
+	public Camera camera = new Camera();;
 
 	private Enviroment env = new Enviroment();
-	
-	public Camera camera = new Camera(this, (int) conf.envWidth, (int) conf.envHeight);
-
 
 	public SimulationPanel() {
 		this.setPreferredSize(new Dimension(conf.screenWidth, conf.screenHeight));
@@ -34,12 +35,12 @@ public class SimulationPanel extends JPanel implements Runnable {
 		this.setDoubleBuffered(true);
 		this.addKeyListener(keyH);
 		this.setFocusable(true);
-
-		camera.centerOn((int) conf.envWidth / 2, (int) conf.envHeight / 2);
+		camera.focusOn(conf.envWidth / 2, conf.envHeight / 2);
+		state.setToRun();
 	}
-	
-	public void setupFromConf() {
-		
+
+	public void setupEnviroment() {
+		env = new Enviroment();
 	}
 
 	public void startSimThread() {
@@ -54,7 +55,7 @@ public class SimulationPanel extends JPanel implements Runnable {
 		long lastTime = System.nanoTime();
 		long currentTime;
 		long timer = 0;
-		int drawCount = 0;
+		drawCount = 0;
 
 		while (simThread != null) {
 			currentTime = System.nanoTime();
@@ -70,7 +71,7 @@ public class SimulationPanel extends JPanel implements Runnable {
 			}
 
 			if (timer >= 1000000000) {
-				System.out.println("FPS:" + drawCount);
+//				System.out.println("FPS:" + drawCount);
 				drawCount = 0;
 				timer = 0;
 			}
@@ -79,27 +80,31 @@ public class SimulationPanel extends JPanel implements Runnable {
 	}
 
 	public void update() {
-		for(int i = 0; i < conf.UPF; i++) {
-			env.update(conf.simStep);
+		if (state.isRun()) {
+			for (int i = 0; i < conf.UPF; i++) {
+				env.update(conf.simStep);
+			}
 		}
 	}
 
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		
+
 		Graphics2D g2 = (Graphics2D) g;
 		g2.setStroke(new BasicStroke(2));
-		
+
 //		Particle focus = env.getParticle(0);
 //		camera.centerOn(focus.getX(), focus.getY());
-				
-		env.draw(g2, camera);
-//		camera.draw(g2);
 
+		env.draw(g2, camera);
+		
+		if (conf.drawCamera) {
+			camera.draw(g2);
+		}
+		
+		ui.draw(g2);
 
 		g2.dispose();
 	}
-
-	
 
 }

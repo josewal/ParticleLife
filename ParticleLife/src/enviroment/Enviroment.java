@@ -1,9 +1,12 @@
 package enviroment;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import camera.Camera;
@@ -20,29 +23,28 @@ public class Enviroment {
 	public SpatialHashGrid<Particle> shGrid;
 
 	private ArrayList<Vector2D> airResistanceVectors;
-	private ArrayList<Vector2D> particleInteractions;
-	
+	private HashMap<Particle, Vector2D> particleInteractions;
 
-	public Enviroment() {		
+	public Enviroment() {
 		airResistanceVectors = new ArrayList<>();
-		particleInteractions = new ArrayList<>();
+		particleInteractions = new HashMap<>();
+		
 		particles = new ArrayList<>();
-
 
 		setupSHGrid();
 		setupParticles();
 	}
 
 	public void setupSHGrid() {
-		
+
 		shGrid = new SpatialHashGrid<Particle>(conf.cols, conf.rows, conf.cellSize);
 	}
 
 	public void setupParticles() {
 		ParticleFactory pFact = ParticleFactory.getInstance();
-		loadParticleList(pFact.createParticleListFromMatrix(conf.amounts, conf.forceMatrix));
+		loadParticleList(pFact.createParticleListFromMatrix(conf.startAmounts, conf.forceMatrix));
 	}
-	
+
 	public void loadParticleList(List<Particle> particles) {
 		for (Particle particle : particles) {
 			addParticle(particle);
@@ -53,7 +55,6 @@ public class Enviroment {
 		particles.add(particle);
 		shGrid.add(particle);
 		airResistanceVectors.add(new Vector2D());
-		particleInteractions.add(new Vector2D());
 	}
 
 	public Particle getParticle(int idx) {
@@ -75,28 +76,48 @@ public class Enviroment {
 	}
 
 	private void applyParticleInteractionsVectors() {
-		for (int i = 0; i < particleInteractions.size(); i++) {
-			getParticle(i).applyForce(particleInteractions.get(i));
+		for (Map.Entry<Particle, Vector2D> interaction : particleInteractions.entrySet()) {
+			Particle particle = interaction.getKey();
+			Vector2D force = interaction.getValue();
+			particle.applyForce(force);
 		}
 	}
 
+	public Vector2D calculateToroidalRelativePos(Vector2D to, Vector2D from) {
+		double dX = (to.x - from.x);
+		double dY = (to.y - from.y);
+
+		double absdX = Math.abs(dX);
+		double absdY = Math.abs(dY);
+
+		double toroidalDx = dX;
+		double toroidalDy = dY;
+
+		if (absdX > conf.envWidth / 2) {
+			toroidalDx = -Math.signum(dX) * (conf.envWidth - absdX);
+		}
+
+		if (absdY > conf.envHeight / 2) {
+			toroidalDy = -Math.signum(dY) * (conf.envHeight - absdY);
+		}
+
+		return new Vector2D(toroidalDx, toroidalDy);
+	}
+
 	public Vector2D calculateInteraction(Particle acting, Particle on) {
-		Vector2D relativePos = Vector2D.subtract(on.getPos(), acting.getPos());
+		Vector2D relativePos = calculateToroidalRelativePos(on.getPos(), acting.getPos());
+
 		Vector2D relativeVel = Vector2D.subtract(on.getVel(), acting.getVel());
 		Vector2D force = acting.force.getForceVector(relativePos, relativeVel, on.color);
 		return force;
 	}
-	
+
 	public void zeroOutInteractions() {
-		for (int i = 0; i < particleInteractions.size(); i++) {
-			Vector2D vector2d = particleInteractions.get(i);
-			vector2d.set(0,0);
-		}
+		particleInteractions.clear();
 	}
 
-	public void calculateAllInteractions() {
+	public void calculateInteractions() {
 		zeroOutInteractions();
-		
 		for (int i = 0; i < particles.size(); i++) {
 			Particle acter = particles.get(i);
 
@@ -104,13 +125,13 @@ public class Enviroment {
 			double queryX = acter.getX() - forceRadius;
 			double queryY = acter.getY() - forceRadius;
 
-			Set<Particle> actingOnParticles = shGrid.elementsInRectQuery(queryX, queryY, 2*forceRadius,
-					2*forceRadius);
+			Set<Particle> actingOnParticles = shGrid.elementsInRectQuery(queryX, queryY, 2 * forceRadius,
+					2 * forceRadius);
 
 			for (Particle actingOn : actingOnParticles) {
-				if(acter != actingOn) {
+				if (acter != actingOn) {
 					Vector2D interaction = calculateInteraction(acter, actingOn);
-					actingOn.applyForce(interaction);
+					particleInteractions.put(actingOn, interaction);
 				}
 			}
 		}
@@ -119,10 +140,10 @@ public class Enviroment {
 	public void update(double dt) {
 		calculateAirResistanceVectors();
 		applyAirResistanceVectors();
-		
-		calculateAllInteractions();
-		applyParticleInteractionsVectors();
 
+		calculateInteractions();
+		applyParticleInteractionsVectors();
+		
 		updateParticles(dt);
 
 		boundParticles();
@@ -169,20 +190,38 @@ public class Enviroment {
 	}
 
 	public void draw(Graphics2D g2, Camera c) {
-		shGrid.draw(g2, c);
-	
-		int[][] inView = shGrid.bucketIdxInRectQuery(c.worldX, c.worldY, c.width, c.height);
-		for (int[] idx : inView) {
-			Set<Particle> particles = shGrid.getElementsFromBucket(idx[0], idx[1]);
+		if (conf.drawSHGrid) {
+			shGrid.draw(g2, c);
+		}
+		if (conf.drawEnvBorder) {
+			drawWorldBorder(g2, c);
+		}
+		if (conf.drawForces) {
 			for (Particle particle : particles) {
-				particle.draw(g2, c);
+				particle.drawForce(g2, c);
 			}
 		}
+
+//		int[][] inView = shGrid.bucketIdxInRectQuery(c.worldX, c.worldY, c.width*c.zoom, c.height*c.zoom);
+//		for (int[] idx : inView) {
+//			Set<Particle> particles = shGrid.getElementsFromBucket(idx[0], idx[1]);
+		for (Particle particle : particles) {
+			particle.draw(g2, c);
+		}
+//		}
 	}
 
 	public void drawWorldBorder(Graphics2D g2, Camera c) {
 		g2.setColor(Color.YELLOW);
-		g2.drawRect(0 - (int) c.worldX, 0 - (int) c.worldY, (int) conf.envWidth, (int) conf.envHeight);
+		g2.drawRect(c.getFrameX(0), c.getFrameY(0), c.zoomElongation(conf.envWidth), c.zoomElongation(conf.envHeight));
+	}
+
+	public void drawVector(Graphics2D g2, Camera c, Vector2D toDraw, Vector2D where) {
+		g2.setColor(Color.white);
+		g2.setStroke(new BasicStroke(3));
+		Vector2D end = Vector2D.add(toDraw, where);
+		g2.drawLine(c.getFrameX(where.x - c.worldCenterX), c.getFrameY(where.y - c.worldCenterY),
+				c.zoomElongation(end.x - c.worldCenterX), c.zoomElongation(end.y - c.worldCenterY));
 	}
 
 }

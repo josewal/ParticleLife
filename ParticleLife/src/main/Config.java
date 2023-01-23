@@ -17,54 +17,65 @@ public class Config {
 		return instance;
 	}
 
-	// SCREEN SIZE
-	public final int screenWidth = 800;
+	// SCREEN PARAMS
+	public final int screenWidth = 1050;
 	public final int screenHeight = 800;
+	public final int optionsFrameX = 50;
+	public final int optionsFrameY = 50;
+	public final int optionsWidth = 300;
+	public final int optionsHeight = screenHeight - 2*optionsFrameY;
 
 	// SIM PARAMS
-	public final double simStep = 0.1;
+	public double simStep = 0.1;
 
 	// FPS
-	public final int FPS = 60;
-	public final int UPF = 1; // updates per frame
+	public int FPS = 60;
+	public int UPF = 1; // updates per frame
 
 	// ENV PARAMS
-	public final double envWidth = 600;
-	public final double envHeight = 600;
+	public final double envWidth = 2000;
+	public final double envHeight = 2000;
 	public final boolean envWrapped = true;
-
-	public final int start_number_of_particles = 500;
-	public final double airResistanceCoef = 1;
+	
+	public double airResistanceCoef = 0.01;
 
 	// SHGRID PARAMS
-	public final double cellSize = 50;
-	public final int cols = (int) (envWidth / cellSize);
-	public final int rows = (int) (envHeight / cellSize);
+	public double cellSize = 100;
+	public int cols = (int) (envWidth / cellSize);
+	public int rows = (int) (envHeight / cellSize);
 
 	// PARTICLE PARAMS
 	public final Color particleDefColor = Color.WHITE;
 	public final double particleDrawSize = 10;
 
 	// CAMERA
-	public final int startWidth = 600;
-	public final int startHeight = 600;
+	public final int cameraWidth = 600;
+	public final int cameraHeight = 600;
+	public final int cameraScreenCenterX = screenWidth/2;
+	public final int cameraScreenCenterY = screenHeight/2;
+	public final double cameraDefaultZoom = Math.min((screenWidth-50)/envWidth,(screenHeight-50)/envHeight);
 
 	// PARTICLE SET
-	public final int[] amounts = { 500, 500, 500 };
-	public final SingleForce redOnRed = new SingleForce(25, 100, 10, -1, Color.RED);
-	public final SingleForce redOnGreen = new SingleForce(25, 50, 10, 1, Color.GREEN);
-	public final SingleForce redOnBlue = new SingleForce(25, 50, 10, 0, Color.BLUE);
+	public int[] startAmounts = { 500, 500, 500 };
+	public SingleForce redOnRed = new SingleForce(25, 100, 40, -1, Color.RED);
+	public SingleForce redOnGreen = new SingleForce(25, 50, 10, 1, Color.GREEN);
+	public SingleForce redOnBlue = new SingleForce(25, 50, 10, 1, Color.BLUE);
 
-	public final SingleForce greenOnRed = new SingleForce(25, 50, 10, -1, Color.RED);
-	public final SingleForce greenOnGreen = new SingleForce(25, 100, 10, -1, Color.GREEN);
-	public final SingleForce greenOnBlue = new SingleForce(25, 50, 10, 0, Color.BLUE);
+	public SingleForce greenOnRed = new SingleForce(25, 50, 20, -1, Color.RED);
+	public SingleForce greenOnGreen = new SingleForce(25, 50, 10, -1, Color.GREEN);
+	public SingleForce greenOnBlue = new SingleForce(25, 50, 10, -1, Color.BLUE);
 	
-	public final SingleForce blueOnRed = new SingleForce(25, 50, 10, 0, Color.RED);
-	public final SingleForce blueOnGreen = new SingleForce(25, 50, 10, 0, Color.GREEN);
-	public final SingleForce blueOnBlue = new SingleForce(25, 100, 10, -1, Color.BLUE);
+	public SingleForce blueOnRed = new SingleForce(25, 50, 20, 0, Color.RED);
+	public SingleForce blueOnGreen = new SingleForce(25, 50, 10, 0, Color.GREEN);
+	public SingleForce blueOnBlue = new SingleForce(25, 50, 10, -1, Color.BLUE);
 
 
 	public final SingleForce[][] forceMatrix = { { redOnRed, redOnGreen, redOnGreen}, { greenOnRed, greenOnGreen, greenOnBlue}, {blueOnRed, blueOnGreen, blueOnBlue} };
+	
+	//DRAW TOGGLES
+	public boolean drawForces = false;
+	public boolean drawCamera = false;
+	public boolean drawEnvBorder = true;
+	public boolean drawSHGrid = false;
 
-//	public final Color[] colors = { Color.RED, Color.BLUE, Color.BLUE };
 }

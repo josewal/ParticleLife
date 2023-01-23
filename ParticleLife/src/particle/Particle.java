@@ -79,30 +79,33 @@ public class Particle implements ISpatial {
 		this.acc.setZero();
 	}
 	
-	public void draw(Graphics2D g2, Camera c) {
-//		drawForce(g2, c);
+	public void draw(Graphics2D g2, Camera c) {		
+		int radius = (int) c.zoomElongation(force.avgMinRadius/6);
+		int screenX = c.getFrameX(pos.x) - radius;
+		int screenY = c.getFrameY(pos.y) - radius;
 		
-		int screenX = (int) (pos.x - force.avgMinRadius/6 - c.worldX);
-		int screenY = (int) (pos.y - force.avgMinRadius/6 - c.worldY);
 				
 		g2.setColor(color);
-		g2.fillOval(screenX, screenY,(int) force.avgMinRadius/3, (int) force.avgMinRadius/3);
+		g2.fillOval(screenX, screenY,2*radius, 2*radius);
 	}
 	
 	public void drawForce(Graphics2D g2, Camera c) {
-		int screenX = (int) (pos.x - force.maxRadius - c.worldX);
-		int screenY = (int) (pos.y - force.maxRadius - c.worldY);
+		int radius = (int) c.zoomElongation(force.maxRadius);
+		int screenX = c.getFrameX(pos.x) - radius;
+		int screenY = c.getFrameY(pos.y) - radius;
 
-//		g2.setColor(force.midColor);
-		g2.fillOval(screenX, screenY,(int) (2*force.maxRadius),(int) (2*force.maxRadius));
+		g2.setColor(new Color(255,255,255,50));
+		g2.fillOval(screenX, screenY,2*radius, 2*radius);
 	}
 	
-	public void highlight(Graphics2D g2, Camera cam, Color clr) {
-		int screenX = (int) (pos.x - force.avgMinRadius/6 - cam.worldX);
-		int screenY = (int) (pos.y - force.avgMinRadius/6 - cam.worldY);
-
+	public void highlight(Graphics2D g2, Camera c, Color clr) {
+		int radius = c.zoomElongation(force.avgMinRadius/6);
+		int screenX = c.getFrameX(pos.x) - radius;
+		int screenY = c.getFrameY(pos.y) - radius;
+		
+				
 		g2.setColor(clr);
-		g2.fillOval(screenX, screenY,(int) force.avgMinRadius/3,(int) force.avgMinRadius/3);
+		g2.fillOval(screenX, screenY,2*radius, 2*radius);
 
 	}
 	
