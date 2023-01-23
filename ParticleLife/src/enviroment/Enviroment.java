@@ -8,24 +8,27 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ForkJoinPool;
 
 import camera.Camera;
 import hashgrid.SpatialHashGrid;
 import main.Config;
 import particle.Particle;
 import particle.ParticleFactory;
+import task.CalculateInteractionsTask;
 import vector.Vector2D;
 
 public class Enviroment {
 	Config conf = Config.getInstance();
 
-	private ArrayList<Particle> particles;
+	public ArrayList<Particle> particles;
 	public SpatialHashGrid<Particle> shGrid;
 
 	private ArrayList<Vector2D> airResistanceVectors;
-	private HashMap<Particle, Vector2D> particleInteractions;
+	public HashMap<Particle, Vector2D> particleInteractions;
 
-	public Enviroment() {
+	public Enviroment() {		
 		airResistanceVectors = new ArrayList<>();
 		particleInteractions = new HashMap<>();
 		
@@ -75,10 +78,12 @@ public class Enviroment {
 		}
 	}
 
-	private void applyParticleInteractionsVectors() {
+	private void applyParticleInteractionsVectors()
+	{
 		for (Map.Entry<Particle, Vector2D> interaction : particleInteractions.entrySet()) {
 			Particle particle = interaction.getKey();
 			Vector2D force = interaction.getValue();
+			System.out.println(force);
 			particle.applyForce(force);
 		}
 	}
@@ -111,13 +116,8 @@ public class Enviroment {
 		Vector2D force = acting.force.getForceVector(relativePos, relativeVel, on.color);
 		return force;
 	}
-
-	public void zeroOutInteractions() {
-		particleInteractions.clear();
-	}
-
-	public void calculateInteractions() {
-		zeroOutInteractions();
+	
+	private void calculateInteractions() {
 		for (int i = 0; i < particles.size(); i++) {
 			Particle acter = particles.get(i);
 
@@ -137,11 +137,24 @@ public class Enviroment {
 		}
 	}
 
+
+	public void zeroOutInteractions() {
+		particleInteractions.clear();
+	}
+
 	public void update(double dt) {
 		calculateAirResistanceVectors();
 		applyAirResistanceVectors();
-
+		
+		zeroOutInteractions();
 		calculateInteractions();
+//		CalculateInteractionsTask task = new CalculateInteractionsTask(this, 0, particles.size());
+//		ForkJoinPool pool = ForkJoinPool.commonPool();
+		
+//		pool.execute(task);
+//		while (!task.isDone());
+//		pool.shutdown();
+		
 		applyParticleInteractionsVectors();
 		
 		updateParticles(dt);

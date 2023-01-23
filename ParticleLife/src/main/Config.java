@@ -33,8 +33,8 @@ public class Config {
 	public int UPF = 1; // updates per frame
 
 	// ENV PARAMS
-	public final double envWidth = 2000;
-	public final double envHeight = 2000;
+	public final double envWidth = 1000;
+	public final double envHeight = 1000;
 	public final boolean envWrapped = true;
 	
 	public double airResistanceCoef = 0.01;

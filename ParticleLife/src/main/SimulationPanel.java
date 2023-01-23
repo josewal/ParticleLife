@@ -5,13 +5,11 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Stroke;
 
 import javax.swing.JPanel;
 
 import camera.Camera;
 import enviroment.Enviroment;
-import particle.Particle;
 
 public class SimulationPanel extends JPanel implements Runnable {
 
