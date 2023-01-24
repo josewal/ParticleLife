@@ -7,6 +7,7 @@ import java.lang.Math;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import camera.Camera;
 
@@ -14,7 +15,7 @@ import camera.Camera;
 public class SpatialHashGrid<T extends ISpatial> {
 	private ArrayList<T> elements;
 
-	private Set<T>[][] buckets;
+	private ConcurrentHashMap<T, Object>[][] buckets;
 	private boolean[][] bucketFilled;
 //	private Set<T> query;
 
@@ -38,10 +39,10 @@ public class SpatialHashGrid<T extends ISpatial> {
 
 	@SuppressWarnings("unchecked")
 	private void setupBuckets() {
-		buckets = new HashSet[cols][rows];
+		buckets = new ConcurrentHashMap[cols][rows];
 		for (int col = 0; col < cols; col++) {
 			for (int row = 0; row < rows; row++) {
-				buckets[col][row] = new HashSet<>();
+				buckets[col][row] = new ConcurrentHashMap<>();
 			}
 		}
 		bucketFilled = new boolean[cols][rows];
@@ -89,8 +90,8 @@ public class SpatialHashGrid<T extends ISpatial> {
 
 	public void putElementIntoBucket(T element) {
 		int col = getCol(element);
-		int row = getRow(element);
-		buckets[col][row].add(element);
+		int row = getRow(element); 
+		buckets[col][row].put(element, 0);
 		bucketFilled[col][row] = true;
 	}
 
@@ -106,10 +107,10 @@ public class SpatialHashGrid<T extends ISpatial> {
 	}
 
 	public Set<T> getElementsFromBucket(int col, int row) {
-		return new HashSet<>(buckets[col][row]);
+		return buckets[col][row].keySet();
 	}
 
-	public Set<T> elementsInRectQuery(double x, double y, double width, double height) {
+	synchronized public Set<T> elementsInRectQuery(double x, double y, double width, double height) {
 		Set<T> query = new HashSet<T>();
 				
 
@@ -129,7 +130,7 @@ public class SpatialHashGrid<T extends ISpatial> {
 				int row = Math.floorMod(unwRow, rows);
 				
 				if (!bucketFilled[col][row])continue;
-				query.addAll(buckets[col][row]);
+				query.addAll(buckets[col][row].keySet());
 			}
 		}
 
