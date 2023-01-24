@@ -7,26 +7,36 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import camera.Camera;
 import hashgrid.SpatialHashGrid;
 import main.Config;
 import particle.Particle;
 import particle.ParticleFactory;
+import task.interactionCalculationTask;
 import vector.Vector2D;
 
 public class Enviroment {
 	Config conf = Config.getInstance();
-
-	private ArrayList<Particle> particles;
+	
+	ExecutorService service = Executors.newWorkStealingPool(conf.numberOfThreads);
+	List<interactionCalculationTask> tasks = new ArrayList<interactionCalculationTask>();
+	
+	
+	public ArrayList<Particle> particles;
 	public SpatialHashGrid<Particle> shGrid;
 
 	private ArrayList<Vector2D> airResistanceVectors;
-	private HashMap<Particle, Vector2D> particleNetInteractions;
+
+	private ConcurrentHashMap<Particle, Vector2D> particleNetInteractions;
 
 	public Enviroment() {
 		airResistanceVectors = new ArrayList<>();
-		particleNetInteractions = new HashMap<>();
+
+		particleNetInteractions = new ConcurrentHashMap<>();
 
 		particles = new ArrayList<>();
 
@@ -119,15 +129,21 @@ public class Enviroment {
      * Iterates over env.particles [acter], gathers all particles that are acted on [actingOn] and calls calculateInteraction(acter, actingOn) a if this vector is nonzero than puts it in the particleIneractions 
      * @return null
      */
-	public void calculateNetInteractions() {
+	public void executeInteractionCalculationTasks() {
 		zeroOutNetInteractionsMap();
-		for (int i = 0; i < particles.size(); i++) {
-			Particle acter = particles.get(i);
-			Set<Particle> inInteractionRadius = gatherParticlesInInteractionRadius(acter);
-
-			acterActs(acter, inInteractionRadius);
+//		service.invokeAll(tasks);
+//		for (interactionCalculationTask interactionCalculationTask : tasks) {
+//			service.execute(interactionCalculationTask);
+//		}
+		try {
+			service.invokeAll(tasks);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+
 	}
+	
 
 	public void acterActs(Particle acter, Set<Particle> actingOnParticles) {
 		for (Particle actingOn : actingOnParticles) {
@@ -166,8 +182,9 @@ public class Enviroment {
 	public void update(double dt) {
 		calculateAirResistanceVectors();
 		applyAirResistanceVectors();
-
-		calculateNetInteractions();
+		
+		createInteractionCalculationTasks();
+		executeInteractionCalculationTasks();
 		applyParticleInteractionsVectors();
 
 		updateParticles(dt);
@@ -175,6 +192,15 @@ public class Enviroment {
 		boundAllParticles();
 
 		shGrid.update();
+	}
+
+	private void createInteractionCalculationTasks() {
+		tasks.clear();
+//		System.out.println(Runtime.getRuntime().availableProcessors());		
+		for(int i = 0; i < particles.size(); i += conf.taskSize) {
+			interactionCalculationTask task = new interactionCalculationTask(this, i, Math.min(i + conf.taskSize, particles.size()));
+			tasks.add(task);
+		}
 	}
 
 	public void pushParticlesToCenter() {
