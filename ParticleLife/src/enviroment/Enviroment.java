@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -29,11 +30,11 @@ public class Enviroment {
 	public SpatialHashGrid<Particle> shGrid;
 
 	private ArrayList<Vector2D> airResistanceVectors;
-	private HashMap<Particle, Vector2D> particleNetInteractions;
+	private ConcurrentHashMap<Particle, Vector2D> particleNetInteractions;
 
 	public Enviroment() {
 		airResistanceVectors = new ArrayList<>();
-		particleNetInteractions = new HashMap<>();
+		particleNetInteractions = new ConcurrentHashMap<>();
 
 		particles = new ArrayList<>();
 
@@ -129,7 +130,7 @@ public class Enviroment {
 	public void executeInteractionCalculationTasks() {
 		zeroOutNetInteractionsMap();
 		for (interactionCalculationTask interactionCalculationTask : tasks) {
-			interactionCalculationTask.run();
+			service.execute(interactionCalculationTask);
 		}
 	}
 	
@@ -172,7 +173,7 @@ public class Enviroment {
 		calculateAirResistanceVectors();
 		applyAirResistanceVectors();
 		
-		createInteractionCalculationTasks(10);
+		createInteractionCalculationTasks();
 		executeInteractionCalculationTasks();
 		applyParticleInteractionsVectors();
 
@@ -183,10 +184,11 @@ public class Enviroment {
 		shGrid.update();
 	}
 
-	private void createInteractionCalculationTasks(int taskSize) {
+	private void createInteractionCalculationTasks() {
 		tasks.clear();
-		for(int i = 0; i < particles.size(); i += taskSize) {
-			interactionCalculationTask task = new interactionCalculationTask(this, i, i + taskSize);
+		System.out.println(Runtime.getRuntime().availableProcessors());		
+		for(int i = 0; i < particles.size(); i += conf.taskSize) {
+			interactionCalculationTask task = new interactionCalculationTask(this, i, i + conf.taskSize);
 			tasks.add(task);
 		}
 	}
@@ -240,6 +242,11 @@ public class Enviroment {
 			for (Particle particle : particles) {
 				particle.drawForce(g2, c);
 			}
+		}
+		
+		Set<Particle> nbs = gatherParticlesInInteractionRadius(particles.get(0));
+		for (Particle particle : nbs) {
+			particle.highlight(g2, c, new Color(255,0,255,100));
 		}
 
 //		int[][] inView = shGrid.bucketIdxInRectQuery(c.worldX, c.worldY, c.width*c.zoom, c.height*c.zoom);

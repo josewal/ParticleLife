@@ -99,14 +99,13 @@ public class Particle implements ISpatial {
 	}
 	
 	public void highlight(Graphics2D g2, Camera c, Color clr) {
-		int radius = c.zoomElongation(force.avgMinRadius/6);
+		int radius = c.zoomElongation(force.avgMinRadius/6 + 10);
 		int screenX = c.getFrameX(pos.x) - radius;
 		int screenY = c.getFrameY(pos.y) - radius;
 		
 				
 		g2.setColor(clr);
 		g2.fillOval(screenX, screenY,2*radius, 2*radius);
-
 	}
 	
 	public void applyForce(Vector2D force) {
