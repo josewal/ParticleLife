@@ -129,7 +129,7 @@ public class Enviroment {
      */
 	public void executeInteractionCalculationTasks() {
 		zeroOutNetInteractionsMap();
-		WORKERS_POOL.invoke(new interactionCalculationTask(this, 0, particles.size()));
+		WORKERS_POOL.invoke(new interactionCalculationTask(this, 0, particles.size(), conf.taskSize));
 		
 
 	}
