@@ -56,21 +56,21 @@ public class Config {
 	public final double cameraDefaultZoom = Math.min((screenWidth-50)/envWidth,(screenHeight-50)/envHeight);
 
 	// PARTICLE SET
-	public int[] startAmounts = { 100, 100, 0 };
-	public SingleForce redOnRed = new SingleForce(25, 100, 40, -1, Color.RED);
+	public int[] startAmounts = { 2000, 0, 0 };
+	public SingleForce redOnRed = new SingleForce(25, 200, 10, -1, Color.RED);
 	public SingleForce redOnGreen = new SingleForce(25, 50, 10, 1, Color.GREEN);
 	public SingleForce redOnBlue = new SingleForce(25, 50, 10, 1, Color.BLUE);
 
-	public SingleForce greenOnRed = new SingleForce(25, 50, 20, -1, Color.RED);
+	public SingleForce greenOnRed = new SingleForce(25, 100, 20, -1, Color.RED);
 	public SingleForce greenOnGreen = new SingleForce(25, 50, 10, -1, Color.GREEN);
 	public SingleForce greenOnBlue = new SingleForce(25, 50, 10, -1, Color.BLUE);
 	
-	public SingleForce blueOnRed = new SingleForce(25, 50, 20, 0, Color.RED);
+	public SingleForce blueOnRed = new SingleForce(25, 100, 20, 0, Color.RED);
 	public SingleForce blueOnGreen = new SingleForce(25, 50, 10, 0, Color.GREEN);
-	public SingleForce blueOnBlue = new SingleForce(25, 50, 10, -1, Color.BLUE);
+	public SingleForce blueOnBlue = new SingleForce(25, 200, 10, -1, Color.BLUE);
 
 
-	public final SingleForce[][] forceMatrix = { { redOnRed, redOnGreen, redOnGreen}, { greenOnRed, greenOnGreen, greenOnBlue}, {blueOnRed, blueOnGreen, blueOnBlue} };
+	public final SingleForce[][] forceMatrix = { { redOnRed, redOnGreen, redOnBlue}, { greenOnRed, greenOnGreen, greenOnBlue}, {blueOnRed, blueOnGreen, blueOnBlue} };
 	
 	//DRAW TOGGLES
 	public boolean drawForces = false;

@@ -22,11 +22,11 @@ public class Enviroment {
 	public SpatialHashGrid<Particle> shGrid;
 
 	private ArrayList<Vector2D> airResistanceVectors;
-	private HashMap<Particle, Vector2D> particleInteractions;
+	private HashMap<Particle, Vector2D> particleNetInteractions;
 
 	public Enviroment() {
 		airResistanceVectors = new ArrayList<>();
-		particleInteractions = new HashMap<>();
+		particleNetInteractions = new HashMap<>();
 
 		particles = new ArrayList<>();
 
@@ -75,7 +75,7 @@ public class Enviroment {
 	}
 
 	private void applyParticleInteractionsVectors() {
-		for (HashMap.Entry<Particle, Vector2D> interaction : particleInteractions.entrySet()) {
+		for (HashMap.Entry<Particle, Vector2D> interaction : particleNetInteractions.entrySet()) {
 			Particle particle = interaction.getKey();
 			Vector2D force = interaction.getValue();
 			particle.applyForce(force);
@@ -111,35 +111,55 @@ public class Enviroment {
 		return force;
 	}
 
-	public void zeroOutInteractions() {
-		particleInteractions.clear();
+	public void zeroOutNetInteractionsMap() {
+		particleNetInteractions.clear();
 	}
 
-	public void calculateInteractions() {
-		zeroOutInteractions();
+	/**
+     * Iterates over env.particles [acter], gathers all particles that are acted on [actingOn] and calls calculateInteraction(acter, actingOn) a if this vector is nonzero than puts it in the particleIneractions 
+     * @return null
+     */
+	public void calculateNetInteractions() {
+		zeroOutNetInteractionsMap();
 		for (int i = 0; i < particles.size(); i++) {
 			Particle acter = particles.get(i);
+			Set<Particle> inInteractionRadius = gatherParticlesInInteractionRadius(acter);
 
-			double forceRadius = acter.force.maxRadius;
-			double queryX = acter.getX() - forceRadius;
-			double queryY = acter.getY() - forceRadius;
+			acterActs(acter, inInteractionRadius);
+		}
+	}
 
-			Set<Particle> actingOnParticles = shGrid.elementsInRectQuery(queryX, queryY, 2 * forceRadius,
-					2 * forceRadius);
-
-			for (Particle actingOn : actingOnParticles) {
-				if (acter != actingOn) {
-					Vector2D interaction = calculateInteraction(acter, actingOn);
-					if (interaction.getLengthSq() != 0) {
-						Vector2D netInteraction = particleInteractions.get(actingOn);
-						if (netInteraction == null) {
-							particleInteractions.put(actingOn, interaction);
-						} else {
-							netInteraction.add(interaction);
-						}
-					}
-				}
+	public void acterActs(Particle acter, Set<Particle> actingOnParticles) {
+		for (Particle actingOn : actingOnParticles) {
+			if (acter == actingOn) {
+				continue;
 			}
+			
+			Vector2D interaction = calculateInteraction(acter, actingOn);
+			if (interaction.getLengthSq() == 0) {
+				continue;
+			}
+			
+			addSingleInteractionToNetInteractions(actingOn, interaction);
+		}
+	}
+
+	public Set<Particle> gatherParticlesInInteractionRadius(Particle acter) {
+		double forceRadius = acter.force.maxRadius;
+		double queryX = acter.getX() - forceRadius;
+		double queryY = acter.getY() - forceRadius;
+
+		Set<Particle> actingOnParticles = shGrid.elementsInRectQuery(queryX, queryY, 2 * forceRadius,
+				2 * forceRadius);
+		return actingOnParticles;
+	}
+
+	public void addSingleInteractionToNetInteractions(Particle actingOn, Vector2D interaction) {
+		Vector2D netInteraction = particleNetInteractions.get(actingOn);
+		if (netInteraction == null) {
+			particleNetInteractions.put(actingOn, interaction);
+		} else {
+			netInteraction.add(interaction);
 		}
 	}
 
@@ -147,7 +167,7 @@ public class Enviroment {
 		calculateAirResistanceVectors();
 		applyAirResistanceVectors();
 
-		calculateInteractions();
+		calculateNetInteractions();
 		applyParticleInteractionsVectors();
 
 		updateParticles(dt);
