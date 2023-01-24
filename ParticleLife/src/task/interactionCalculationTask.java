@@ -9,16 +9,17 @@ import main.Config;
 import particle.Particle;
 
 public class interactionCalculationTask extends RecursiveAction {
-	private Config conf = Config.getInstance();
 	private Enviroment env;
+	private int taskSize;
 	private int from;
 	private int to;
 
-	public interactionCalculationTask(Enviroment env, int from, int to) {
+	public interactionCalculationTask(Enviroment env, int from, int to, int taskSize) {
 		super();
 		this.env = env;
 		this.from = from;
 		this.to = to;
+		this.taskSize = taskSize;
 	}
 
 	private void calculateInteractions() {
@@ -39,10 +40,10 @@ public class interactionCalculationTask extends RecursiveAction {
 
 	@Override
 	protected void compute() {
-		if(to - from > conf.taskSize) {
+		if(to - from > taskSize) {
 			int mid = (from + to)/2;
-			interactionCalculationTask t1 = new interactionCalculationTask(env, from, mid + 1);
-			interactionCalculationTask t2 = new interactionCalculationTask(env, mid + 1, to);
+			interactionCalculationTask t1 = new interactionCalculationTask(env, from, mid + 1, taskSize);
+			interactionCalculationTask t2 = new interactionCalculationTask(env, mid + 1, to, taskSize);
 			invokeAll(t1, t2);
 		}else {
 			calculateInteractions();
