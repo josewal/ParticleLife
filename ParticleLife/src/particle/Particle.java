@@ -94,7 +94,7 @@ public class Particle implements ISpatial {
 		int screenX = c.getFrameX(pos.x) - radius;
 		int screenY = c.getFrameY(pos.y) - radius;
 
-		g2.setColor(new Color(255,255,255,50));
+		g2.setColor(new Color(255,255,255,5));
 		g2.fillOval(screenX, screenY,2*radius, 2*radius);
 	}
 	

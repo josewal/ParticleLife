@@ -4,32 +4,37 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import camera.Camera;
 import hashgrid.SpatialHashGrid;
 import main.Config;
 import particle.Particle;
 import particle.ParticleFactory;
-import task.CalculateInteractionsAction;
+import task.interactionCalculationTask;
 import vector.Vector2D;
 
 public class Enviroment {
 	Config conf = Config.getInstance();
-
+	
+	ExecutorService service = Executors.newFixedThreadPool(conf.numberOfThreads);
+	List<interactionCalculationTask> tasks = new ArrayList<interactionCalculationTask>();
+	
+	
 	public ArrayList<Particle> particles;
 	public SpatialHashGrid<Particle> shGrid;
 
 	private ArrayList<Vector2D> airResistanceVectors;
-	public ConcurrentHashMap<Particle, Vector2D> particleInteractions;
+	private HashMap<Particle, Vector2D> particleNetInteractions;
 
-	public Enviroment() {		
+	public Enviroment() {
 		airResistanceVectors = new ArrayList<>();
-		particleInteractions = new ConcurrentHashMap<>();
-		
+		particleNetInteractions = new HashMap<>();
+
 		particles = new ArrayList<>();
 
 		setupSHGrid();
@@ -76,12 +81,10 @@ public class Enviroment {
 		}
 	}
 
-	private void applyParticleInteractionsVectors()
-	{
-		for (ConcurrentHashMap.Entry<Particle, Vector2D> interaction : particleInteractions.entrySet()) {
+	private void applyParticleInteractionsVectors() {
+		for (HashMap.Entry<Particle, Vector2D> interaction : particleNetInteractions.entrySet()) {
 			Particle particle = interaction.getKey();
 			Vector2D force = interaction.getValue();
-			System.out.println(force);
 			particle.applyForce(force);
 		}
 	}
@@ -114,61 +117,78 @@ public class Enviroment {
 		Vector2D force = acting.force.getForceVector(relativePos, relativeVel, on.color);
 		return force;
 	}
+
+	public void zeroOutNetInteractionsMap() {
+		particleNetInteractions.clear();
+	}
+
+	/**
+     * Iterates over env.particles [acter], gathers all particles that are acted on [actingOn] and calls calculateInteraction(acter, actingOn) a if this vector is nonzero than puts it in the particleIneractions 
+     * @return null
+     */
+	public void executeInteractionCalculationTasks() {
+		zeroOutNetInteractionsMap();
+		for (interactionCalculationTask interactionCalculationTask : tasks) {
+			interactionCalculationTask.run();
+		}
+	}
 	
-	public void calculateInteractions() {
-		zeroOutInteractions();
-		for (int i = 0; i < particles.size(); i++) {
-			Particle acter = particles.get(i);
 
-			double forceRadius = acter.force.maxRadius;
-			double queryX = acter.getX() - forceRadius;
-			double queryY = acter.getY() - forceRadius;
-
-			Set<Particle> actingOnParticles = shGrid.elementsInRectQuery(queryX, queryY, 2 * forceRadius,
-					2 * forceRadius);
-
-			for (Particle actingOn : actingOnParticles) {
-				if (acter != actingOn) {
-					Vector2D interaction = calculateInteraction(acter, actingOn);
-					if (interaction.getLengthSq() != 0) {
-						Vector2D netInteraction = particleInteractions.get(actingOn);
-						if (netInteraction == null) {
-							particleInteractions.put(actingOn, interaction);
-						} else {
-							netInteraction.add(interaction);
-						}
-					}
-				}
+	public void acterActs(Particle acter, Set<Particle> actingOnParticles) {
+		for (Particle actingOn : actingOnParticles) {
+			if (acter == actingOn) {
+				continue;
 			}
+			
+			Vector2D interaction = calculateInteraction(acter, actingOn);
+			if (interaction.getLengthSq() == 0) {
+				continue;
+			}
+			
+			addSingleInteractionToNetInteractions(actingOn, interaction);
 		}
 	}
 
+	public Set<Particle> gatherParticlesInInteractionRadius(Particle acter) {
+		double forceRadius = acter.force.maxRadius;
+		double queryX = acter.getX() - forceRadius;
+		double queryY = acter.getY() - forceRadius;
 
+		Set<Particle> actingOnParticles = shGrid.elementsInRectQuery(queryX, queryY, 2 * forceRadius,
+				2 * forceRadius);
+		return actingOnParticles;
+	}
 
-	public void zeroOutInteractions() {
-		particleInteractions.clear();
+	public void addSingleInteractionToNetInteractions(Particle actingOn, Vector2D interaction) {
+		Vector2D netInteraction = particleNetInteractions.get(actingOn);
+		if (netInteraction == null) {
+			particleNetInteractions.put(actingOn, interaction);
+		} else {
+			netInteraction.add(interaction);
+		}
 	}
 
 	public void update(double dt) {
 		calculateAirResistanceVectors();
 		applyAirResistanceVectors();
 		
-		zeroOutInteractions();
-//		calculateInteractions();
-		CalculateInteractionsAction task = new CalculateInteractionsAction(this, 0, particles.size());
-		ForkJoinPool pool = ForkJoinPool.commonPool();
-		
-		pool.execute(task);
-		while (!task.isDone());
-		pool.shutdown();
-		
+		createInteractionCalculationTasks(10);
+		executeInteractionCalculationTasks();
 		applyParticleInteractionsVectors();
-		
+
 		updateParticles(dt);
 
-		boundParticles();
+		boundAllParticles();
 
 		shGrid.update();
+	}
+
+	private void createInteractionCalculationTasks(int taskSize) {
+		tasks.clear();
+		for(int i = 0; i < particles.size(); i += taskSize) {
+			interactionCalculationTask task = new interactionCalculationTask(this, i, i + taskSize);
+			tasks.add(task);
+		}
 	}
 
 	public void pushParticlesToCenter() {
@@ -186,7 +206,7 @@ public class Enviroment {
 		}
 	}
 
-	public void boundParticles() {
+	public void boundAllParticles() {
 		for (Particle particle : shGrid.getElements()) {
 			boundParticle(particle);
 		}
