@@ -18,26 +18,26 @@ public class Config {
 	}
 
 	// SCREEN PARAMS
-	public final int screenWidth = 1050;
-	public final int screenHeight = 800;
+	public final int screenWidth = 2000;
+	public final int screenHeight = 1400;
 	public final int optionsFrameX = 50;
 	public final int optionsFrameY = 50;
 	public final int optionsWidth = 300;
 	public final int optionsHeight = screenHeight - 2*optionsFrameY;
 
 	// SIM PARAMS
-	public double simStep = 0.1;
+	public double simStep = 0.5;
 
 	// FPS
 	public int FPS = 60;
 	public int UPF = 1; // updates per frame
 
 	// ENV PARAMS
-	public final double envWidth = 1000;
-	public final double envHeight = 1000;
+	public final double envWidth = 6000;
+	public final double envHeight = 4000;
 	public final boolean envWrapped = true;
 	
-	public double airResistanceCoef = 0.01;
+	public double airResistanceCoef = 0.05;
 	
 	//MULTITHREADING
 	public final int numberOfThreads = Runtime.getRuntime().availableProcessors();
@@ -51,6 +51,7 @@ public class Config {
 
 	// PARTICLE PARAMS
 	public final Color particleDefColor = Color.WHITE;
+	public final Color forceColor = new Color(255,255,255,10);
 	public final double particleDrawSize = 10;
 
 	// CAMERA
@@ -61,27 +62,37 @@ public class Config {
 	public final double cameraDefaultZoom = Math.min((screenWidth-50)/envWidth,(screenHeight-50)/envHeight);
 
 	// PARTICLE SET
-	public int[] startAmounts = { 1000, 1000, 1000 };
-	public SingleForce redOnRed = new SingleForce(25, 100, 10, -1, Color.RED);
-	public SingleForce redOnGreen = new SingleForce(25, 50, 10, 1, Color.GREEN);
-	public SingleForce redOnBlue = new SingleForce(25, 50, 10, 1, Color.BLUE);
+	public int[] startAmounts = { 1000, 1000, 1000, 1000};
+	public SingleForce redOnRed = new SingleForce(50, 70, 2, 2, Color.RED);
+	public SingleForce redOnGreen = new SingleForce(50, 51, 2, 0, Color.GREEN);
+	public SingleForce redOnYellow = new SingleForce(25, 50, 1, -1, Color.YELLOW);
+	public SingleForce redOnCyan = new SingleForce(25, 50, 1, -1, Color.CYAN);
 
-	public SingleForce greenOnRed = new SingleForce(25, 100, 20, -1, Color.RED);
-	public SingleForce greenOnGreen = new SingleForce(25, 50, 10, -1, Color.GREEN);
-	public SingleForce greenOnBlue = new SingleForce(25, 50, 10, -1, Color.BLUE);
+
+	public SingleForce greenOnRed = new SingleForce(50, 51, 2, 3, Color.RED);
+	public SingleForce greenOnGreen = new SingleForce(50, 75, 4, -1, Color.GREEN);
+	public SingleForce greenOnYellow = new SingleForce(50, 51, 2, 3, Color.YELLOW);
+	public SingleForce greenOnCyan = new SingleForce(25, 50, 1, -1, Color.CYAN);
+
 	
-	public SingleForce blueOnRed = new SingleForce(25, 100, 20, 0, Color.RED);
-	public SingleForce blueOnGreen = new SingleForce(25, 50, 10, 0, Color.GREEN);
-	public SingleForce blueOnBlue = new SingleForce(25, 200, 10, -1, Color.BLUE);
+	public SingleForce yellowOnRed = new SingleForce(25, 50, 1, -1, Color.RED);
+	public SingleForce yellowOnGreen = new SingleForce(50, 51, 2, 0, Color.GREEN);
+	public SingleForce yellowOnYellow = new SingleForce(50, 70, 2, 2, Color.YELLOW);
+	public SingleForce yellowOnCyan = new SingleForce(25, 50, 1, -1, Color.CYAN);
 
+	public SingleForce cyanOnRed = new SingleForce(25, 50, 1, -1, Color.RED);
+	public SingleForce cyanOnGreen = new SingleForce(50, 51, 2, 0, Color.GREEN);
+	public SingleForce cyanOnYellow = new SingleForce(50, 70, 2, 2, Color.YELLOW);
+	public SingleForce cyanOnCyan = new SingleForce(25, 50, 1, -1, Color.CYAN);
 
-	public final SingleForce[][] forceMatrix = { { redOnRed, redOnGreen, redOnBlue}, { greenOnRed, greenOnGreen, greenOnBlue}, {blueOnRed, blueOnGreen, blueOnBlue} };
+	public final SingleForce[][] forceMatrix = { { redOnRed, redOnGreen, redOnYellow, redOnCyan}, { greenOnRed, greenOnGreen, greenOnYellow, greenOnCyan}, {yellowOnRed, yellowOnGreen, yellowOnYellow, yellowOnCyan}, 	{cyanOnRed, cyanOnGreen, cyanOnYellow, cyanOnCyan}
+ };
 	
 	//DRAW TOGGLES
 	public boolean drawFPS = true;
 	public boolean drawForces = false;
 	public boolean drawCamera = false;
-	public boolean drawEnvBorder = true;
+	public boolean drawEnvBorder = false;
 	public boolean drawSHGrid = false;
 
 }
