@@ -8,8 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ForkJoinPool;
 
 import camera.Camera;
 import hashgrid.SpatialHashGrid;
@@ -22,9 +21,10 @@ import vector.Vector2D;
 public class Enviroment {
 	Config conf = Config.getInstance();
 	
-	ExecutorService service = Executors.newWorkStealingPool(conf.numberOfThreads);
-	List<interactionCalculationTask> tasks = new ArrayList<interactionCalculationTask>();
+//	ExecutorService service = Executors.newWorkStealingPool(conf.numberOfThreads);
+//	List<interactionCalculationTask> tasks = new ArrayList<interactionCalculationTask>();
 	
+	ForkJoinPool WORKERS_POOL = ForkJoinPool.commonPool();
 	
 	public ArrayList<Particle> particles;
 	public SpatialHashGrid<Particle> shGrid;
@@ -129,16 +129,8 @@ public class Enviroment {
      */
 	public void executeInteractionCalculationTasks() {
 		zeroOutNetInteractionsMap();
-//		service.invokeAll(tasks);
-//		for (interactionCalculationTask interactionCalculationTask : tasks) {
-//			service.execute(interactionCalculationTask);
-//		}
-		try {
-			service.invokeAll(tasks);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		WORKERS_POOL.invoke(new interactionCalculationTask(this, 0, particles.size()));
+		
 
 	}
 	
@@ -181,7 +173,6 @@ public class Enviroment {
 		calculateAirResistanceVectors();
 		applyAirResistanceVectors();
 		
-		createInteractionCalculationTasks();
 		executeInteractionCalculationTasks();
 		applyParticleInteractionsVectors();
 
@@ -190,15 +181,6 @@ public class Enviroment {
 		boundAllParticles();
 
 		shGrid.update();
-	}
-
-	private void createInteractionCalculationTasks() {
-		tasks.clear();
-//		System.out.println(Runtime.getRuntime().availableProcessors());		
-		for(int i = 0; i < particles.size(); i += conf.taskSize) {
-			interactionCalculationTask task = new interactionCalculationTask(this, i, Math.min(i + conf.taskSize, particles.size()));
-			tasks.add(task);
-		}
 	}
 
 	public void pushParticlesToCenter() {
