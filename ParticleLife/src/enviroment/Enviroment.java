@@ -4,12 +4,15 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import camera.Camera;
 import hashgrid.SpatialHashGrid;
@@ -129,9 +132,17 @@ public class Enviroment {
      */
 	public void executeInteractionCalculationTasks() {
 		zeroOutNetInteractionsMap();
-		for (interactionCalculationTask interactionCalculationTask : tasks) {
-			service.execute(interactionCalculationTask);
+//		service.invokeAll(tasks);
+//		for (interactionCalculationTask interactionCalculationTask : tasks) {
+//			service.execute(interactionCalculationTask);
+//		}
+		try {
+			List<Future<Boolean>> listOfFutures = service.invokeAll(tasks);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+
 	}
 	
 
@@ -186,9 +197,9 @@ public class Enviroment {
 
 	private void createInteractionCalculationTasks() {
 		tasks.clear();
-		System.out.println(Runtime.getRuntime().availableProcessors());		
+//		System.out.println(Runtime.getRuntime().availableProcessors());		
 		for(int i = 0; i < particles.size(); i += conf.taskSize) {
-			interactionCalculationTask task = new interactionCalculationTask(this, i, i + conf.taskSize);
+			interactionCalculationTask task = new interactionCalculationTask(this, i, Math.min(i + conf.taskSize, particles.size()));
 			tasks.add(task);
 		}
 	}

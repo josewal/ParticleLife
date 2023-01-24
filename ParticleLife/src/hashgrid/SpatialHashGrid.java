@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import camera.Camera;
 
@@ -15,7 +16,7 @@ import camera.Camera;
 public class SpatialHashGrid<T extends ISpatial> {
 	private ArrayList<T> elements;
 
-	private ConcurrentHashMap<T, Object>[][] buckets;
+	private ConcurrentHashMap<Integer, ConcurrentHashMap<Integer, Set<T>>> buckets;
 	private boolean[][] bucketFilled;
 //	private Set<T> query;
 
@@ -39,11 +40,9 @@ public class SpatialHashGrid<T extends ISpatial> {
 
 	@SuppressWarnings("unchecked")
 	private void setupBuckets() {
-		buckets = new ConcurrentHashMap[cols][rows];
+		buckets = new ConcurrentHashMap<>(cols);
 		for (int col = 0; col < cols; col++) {
-			for (int row = 0; row < rows; row++) {
-				buckets[col][row] = new ConcurrentHashMap<>();
-			}
+			buckets.put(col, new ConcurrentHashMap<>(rows));
 		}
 		bucketFilled = new boolean[cols][rows];
 	}
@@ -81,17 +80,18 @@ public class SpatialHashGrid<T extends ISpatial> {
 
 	private void clearBuckets() {
 		for (int col = 0; col < cols; col++) {
-			for (int row = 0; row < rows; row++) {
-				buckets[col][row].clear();
-				bucketFilled[col][row] = false;
-			}
+			buckets.get(col).clear();
 		}
 	}
 
 	public void putElementIntoBucket(T element) {
 		int col = getCol(element);
 		int row = getRow(element); 
-		buckets[col][row].put(element, 0);
+		if(!buckets.containsKey(col) || !buckets.get(col).containsKey(row)) {
+            buckets.putIfAbsent(col, new ConcurrentHashMap<>());
+            buckets.get(col).putIfAbsent(row, new HashSet<>());
+        }
+        buckets.get(col).get(row).add(element);
 		bucketFilled[col][row] = true;
 	}
 
@@ -107,12 +107,11 @@ public class SpatialHashGrid<T extends ISpatial> {
 	}
 
 	public Set<T> getElementsFromBucket(int col, int row) {
-		return buckets[col][row].keySet();
+		return buckets.get(col).get(row);
 	}
 
-	synchronized public Set<T> elementsInRectQuery(double x, double y, double width, double height) {
-		Set<T> query = new HashSet<T>();
-				
+	public Set<T> elementsInRectQuery(double x, double y, double width, double height) {
+		Set<T> query = new CopyOnWriteArraySet<>();				
 
 		int unwrappedMinCol = (int) ((x) / cellSize);
 		int unwrappedMinRow = (int) ((y) / cellSize);
@@ -128,9 +127,11 @@ public class SpatialHashGrid<T extends ISpatial> {
 				int unwRow = unwrappedMinRow + j;
 				int col = Math.floorMod(unwCol, cols);
 				int row = Math.floorMod(unwRow, rows);
+			
 				
-				if (!bucketFilled[col][row])continue;
-				query.addAll(buckets[col][row].keySet());
+				if (buckets.containsKey(col) && buckets.get(col).containsKey(row)) {
+                    query.addAll(buckets.get(col).get(row));
+                }
 			}
 		}
 
