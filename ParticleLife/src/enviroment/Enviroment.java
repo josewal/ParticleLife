@@ -172,7 +172,7 @@ public class Enviroment {
 
 		updateParticles(dt);
 
-		boundParticles();
+		boundAllParticles();
 
 		shGrid.update();
 	}
@@ -192,7 +192,7 @@ public class Enviroment {
 		}
 	}
 
-	public void boundParticles() {
+	public void boundAllParticles() {
 		for (Particle particle : shGrid.getElements()) {
 			boundParticle(particle);
 		}
