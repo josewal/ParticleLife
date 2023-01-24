@@ -42,7 +42,7 @@ public class Config {
 	//MULTITHREADING
 	public final int numberOfThreads = Runtime.getRuntime().availableProcessors();
 //	public final int taskSize = 3000/numberOfThreads + 1;
-	public final int taskSize = 100;
+	public final int taskSize = 10;
 
 	// SHGRID PARAMS
 	public double cellSize = 100;
@@ -61,8 +61,8 @@ public class Config {
 	public final double cameraDefaultZoom = Math.min((screenWidth-50)/envWidth,(screenHeight-50)/envHeight);
 
 	// PARTICLE SET
-	public int[] startAmounts = { 2000, 2000, 200 };
-	public SingleForce redOnRed = new SingleForce(25, 200, 10, -1, Color.RED);
+	public int[] startAmounts = { 1000, 1000, 1000 };
+	public SingleForce redOnRed = new SingleForce(25, 100, 10, -1, Color.RED);
 	public SingleForce redOnGreen = new SingleForce(25, 50, 10, 1, Color.GREEN);
 	public SingleForce redOnBlue = new SingleForce(25, 50, 10, 1, Color.BLUE);
 

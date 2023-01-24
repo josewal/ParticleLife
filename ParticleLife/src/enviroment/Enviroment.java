@@ -22,7 +22,7 @@ import vector.Vector2D;
 public class Enviroment {
 	Config conf = Config.getInstance();
 	
-	ExecutorService service = Executors.newFixedThreadPool(conf.numberOfThreads);
+	ExecutorService service = Executors.newWorkStealingPool(conf.numberOfThreads);
 	List<interactionCalculationTask> tasks = new ArrayList<interactionCalculationTask>();
 	
 	
@@ -250,11 +250,6 @@ public class Enviroment {
 			for (Particle particle : particles) {
 				particle.drawForce(g2, c);
 			}
-		}
-		
-		Set<Particle> nbs = gatherParticlesInInteractionRadius(particles.get(0));
-		for (Particle particle : nbs) {
-			particle.highlight(g2, c, new Color(255,0,255,100));
 		}
 
 //		int[][] inView = shGrid.bucketIdxInRectQuery(c.worldX, c.worldY, c.width*c.zoom, c.height*c.zoom);
