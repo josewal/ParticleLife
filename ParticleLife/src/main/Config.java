@@ -78,6 +78,7 @@ public class Config {
 	public final SingleForce[][] forceMatrix = { { redOnRed, redOnGreen, redOnBlue}, { greenOnRed, greenOnGreen, greenOnBlue}, {blueOnRed, blueOnGreen, blueOnBlue} };
 	
 	//DRAW TOGGLES
+	public boolean drawFPS = true;
 	public boolean drawForces = false;
 	public boolean drawCamera = false;
 	public boolean drawEnvBorder = true;

@@ -48,8 +48,9 @@ public class UI {
 	public void draw(Graphics2D g2) {
 		this.g2 = g2;
 		
-		g2.setFont(arial_40);
-		g2.setColor(Color.white);
+		if(conf.drawFPS) {
+			drawFPS(conf.screenWidth - 100, 50);
+		}
 		
 		if(sp.state.optionsOpen()) {
 			drawOptionsScreen();
@@ -98,6 +99,12 @@ public class UI {
 			}
 			
 		}
+	}
+	
+	public void drawFPS(int screenX, int screenY) {
+		g2.setColor(Color.white);
+		g2.setFont(arial_20);
+		g2.drawString("FPS: " + sp.FPS, screenX, screenY);
 	}
 	
 }

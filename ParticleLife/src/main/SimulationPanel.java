@@ -18,7 +18,7 @@ public class SimulationPanel extends JPanel implements Runnable {
 	Config conf = Config.getInstance();
 
 	Thread simThread;
-	int drawCount;
+	int FPS;
 
 	public UI ui = new UI(this);
 	public KeyHandler keyH = new KeyHandler(this);
@@ -53,7 +53,7 @@ public class SimulationPanel extends JPanel implements Runnable {
 		long lastTime = System.nanoTime();
 		long currentTime;
 		long timer = 0;
-		drawCount = 0;
+		int drawCount = 0;
 
 		while (simThread != null) {
 			currentTime = System.nanoTime();
@@ -70,6 +70,7 @@ public class SimulationPanel extends JPanel implements Runnable {
 
 			if (timer >= 1000000000) {
 //				System.out.println("FPS:" + drawCount);
+				FPS = drawCount;
 				drawCount = 0;
 				timer = 0;
 			}
