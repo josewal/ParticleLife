@@ -2,20 +2,24 @@ package task;
 
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.RecursiveAction;
 
 import enviroment.Enviroment;
+import main.Config;
 import particle.Particle;
 
-public class interactionCalculationTask implements Callable<Boolean> {
+public class interactionCalculationTask extends RecursiveAction {
 	private Enviroment env;
+	private int taskSize;
 	private int from;
 	private int to;
 
-	public interactionCalculationTask(Enviroment env, int from, int to) {
+	public interactionCalculationTask(Enviroment env, int from, int to, int taskSize) {
 		super();
 		this.env = env;
 		this.from = from;
 		this.to = to;
+		this.taskSize = taskSize;
 	}
 
 	private void calculateInteractions() {
@@ -35,8 +39,15 @@ public class interactionCalculationTask implements Callable<Boolean> {
 	}
 
 	@Override
-	public Boolean call() throws Exception {
-		calculateInteractions();
-		return true;
+	protected void compute() {
+		if(to - from > taskSize) {
+			int mid = (from + to)/2;
+			interactionCalculationTask t1 = new interactionCalculationTask(env, from, mid + 1, taskSize);
+			interactionCalculationTask t2 = new interactionCalculationTask(env, mid + 1, to, taskSize);
+			invokeAll(t1, t2);
+		}else {
+			calculateInteractions();
+		}
+		
 	}
 }

@@ -41,32 +41,30 @@ public class SingleForce {
 		return 0;
 	}
 
-	public Vector2D calculateForceDirection(Vector2D relativePosition, Vector2D relativeVel) {
+
+	public Vector2D calculateForceNotNormilizedDirection(Vector2D relativePosition, Vector2D relativeVel) {
 //		TODO: instatiates a lot of vectors
 		Vector2D direction;
 
 		if (relativePosition.getLengthSq() != 0) {
-			direction = relativePosition.getNormalized();
-			return direction;
+			return relativePosition;
 		}
 
 		if (relativeVel.getLengthSq() != 0) {
-			direction = relativeVel.getNormalized();
-			return direction;
+			return relativeVel;
 		}
 
 //		direction = Vector2D.randomInRange(-1, 1, -1, 1);
 		direction = new Vector2D(1,0);
-		direction.normalize();
 		return direction;
 
 	}
 
 	public Vector2D getForceVector(Vector2D relativePosition, Vector2D relativeVel) {
-		Vector2D direction = calculateForceDirection(relativePosition, relativeVel);
+		Vector2D direction = calculateForceNotNormilizedDirection(relativePosition, relativeVel);
 		double dist = relativePosition.getLength();
 		double strength = getStrength(dist);
-		direction.multiply(strength);
+		direction.multiply(strength/dist);
 		return direction;
 	}
 }

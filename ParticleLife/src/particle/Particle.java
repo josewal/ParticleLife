@@ -5,10 +5,13 @@ import java.awt.Graphics2D;
 
 import camera.Camera;
 import hashgrid.ISpatial;
+import main.Config;
 import particle_force.MultiForce;
 import vector.Vector2D;
 
 public class Particle implements ISpatial {	
+	private Config conf = Config.getInstance();
+	
 	private Vector2D pos;
 	private Vector2D vel;
 	private Vector2D acc;
@@ -80,7 +83,7 @@ public class Particle implements ISpatial {
 	}
 	
 	public void draw(Graphics2D g2, Camera c) {		
-		int radius = (int) c.zoomElongation(force.avgMinRadius/6);
+		int radius = (int) c.zoomElongation(force.avgMinRadius/3);
 		int screenX = c.getFrameX(pos.x) - radius;
 		int screenY = c.getFrameY(pos.y) - radius;
 		
@@ -94,12 +97,12 @@ public class Particle implements ISpatial {
 		int screenX = c.getFrameX(pos.x) - radius;
 		int screenY = c.getFrameY(pos.y) - radius;
 
-		g2.setColor(new Color(255,255,255,5));
+		g2.setColor(conf.forceColor);
 		g2.fillOval(screenX, screenY,2*radius, 2*radius);
 	}
 	
 	public void highlight(Graphics2D g2, Camera c, Color clr) {
-		int radius = c.zoomElongation(force.avgMinRadius/6 + 10);
+		int radius = c.zoomElongation(force.avgMinRadius/3 + 10);
 		int screenX = c.getFrameX(pos.x) - radius;
 		int screenY = c.getFrameY(pos.y) - radius;
 		
