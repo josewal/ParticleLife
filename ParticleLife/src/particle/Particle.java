@@ -83,7 +83,7 @@ public class Particle implements ISpatial {
 	}
 	
 	public void draw(Graphics2D g2, Camera c) {		
-		int radius = (int) c.zoomElongation(force.avgMinRadius/3);
+		int radius = (int) c.zoomElongation(conf.particleDrawSize);
 		int screenX = c.getFrameX(pos.x) - radius;
 		int screenY = c.getFrameY(pos.y) - radius;
 		
@@ -102,7 +102,7 @@ public class Particle implements ISpatial {
 	}
 	
 	public void highlight(Graphics2D g2, Camera c, Color clr) {
-		int radius = c.zoomElongation(force.avgMinRadius/3 + 10);
+		int radius = c.zoomElongation(conf.particleDrawSize + 10);
 		int screenX = c.getFrameX(pos.x) - radius;
 		int screenY = c.getFrameY(pos.y) - radius;
 		
