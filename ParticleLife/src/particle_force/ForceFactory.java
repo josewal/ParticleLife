@@ -7,7 +7,6 @@ import main.Config;
 
 public class ForceFactory {
 	private static ForceFactory instance = null;
-	final private Config conf = Config.getInstance();
 
 	private ForceFactory() {
 	}

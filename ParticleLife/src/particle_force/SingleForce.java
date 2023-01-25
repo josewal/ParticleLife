@@ -17,7 +17,7 @@ public class SingleForce {
 	public SingleForce(double beta, double rMax, double repulsionCharge, double midCharge, Color color) {
 		super();
 		if (beta >= 1 || beta <= 0) {
-			throw new Error("beta not from (0,1)");
+			throw new Error("beta: " + beta + "not from (0,1)");
 		}
 
 		this.beta = beta;

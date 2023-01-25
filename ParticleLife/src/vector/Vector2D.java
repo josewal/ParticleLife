@@ -1,11 +1,7 @@
 package vector;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Graphics2D;
 import java.util.concurrent.ThreadLocalRandom;
 
-import camera.Camera;
 
 public class Vector2D implements Comparable<Vector2D>{
 
