@@ -24,6 +24,7 @@ public class interactionCalculationTask extends RecursiveAction {
 
 	private void calculateInteractions() {
 		for (int i = from; i < to; i++) {
+			env.calculateAirResistanceVector(i);
 			Particle acter;
 			try {
 				acter = env.particles.get(i);
@@ -37,6 +38,8 @@ public class interactionCalculationTask extends RecursiveAction {
 			
 		}
 	}
+	
+
 
 	@Override
 	protected void compute() {
