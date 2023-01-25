@@ -1,14 +1,13 @@
 package task;
 
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.concurrent.RecursiveAction;
 
 import enviroment.Enviroment;
-import main.Config;
 import particle.Particle;
 
 public class interactionCalculationTask extends RecursiveAction {
+	private static final long serialVersionUID = 1L;
 	private Enviroment env;
 	private int taskSize;
 	private int from;

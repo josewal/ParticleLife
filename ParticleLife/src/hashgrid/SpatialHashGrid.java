@@ -38,7 +38,6 @@ public class SpatialHashGrid<T extends ISpatial> {
 //		query = new HashSet<>();
 	}
 
-	@SuppressWarnings("unchecked")
 	private void setupBuckets() {
 		buckets = new ConcurrentHashMap<>(cols);
 		for (int col = 0; col < cols; col++) {

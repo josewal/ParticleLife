@@ -132,7 +132,7 @@ public class Enviroment {
      * Iterates over env.particles [acter], gathers all particles that are acted on [actingOn] and calls calculateInteraction(acter, actingOn) a if this vector is nonzero than puts it in the particleIneractions 
      * @return null
      */
-	public void executeInteractionCalculationTasks() {
+	public void executeCalculationTasks() {
 		zeroOutNetInteractionsMap();
 		WORKERS_POOL.invoke(new interactionCalculationTask(this, 0, particles.size(), conf.taskSize));
 
@@ -175,12 +175,8 @@ public class Enviroment {
 	}
 
 	public void update(double dt) {		
-		executeInteractionCalculationTasks();
-		
-//		applyAirResistanceVectors();
-//		applyParticleInteractionsVectors();
-
-		updateParticles(dt);
+		executeCalculationTasks();
+		executeUpdateTask(dt);
 		
 		shGrid.update();
 	}
@@ -194,7 +190,7 @@ public class Enviroment {
 		}
 	}
 
-	public void updateParticles(double dt) {
+	public void executeUpdateTask(double dt) {
 		UpdateParticleTask task = new UpdateParticleTask(this, 0, particles.size(), dt);
 		WORKERS_POOL.invoke(task);
 	}

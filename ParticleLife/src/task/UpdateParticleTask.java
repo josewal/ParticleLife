@@ -1,12 +1,12 @@
 package task;
 
-import java.util.List;
 import java.util.concurrent.RecursiveAction;
 
 import enviroment.Enviroment;
 import particle.Particle;
 
 public class UpdateParticleTask extends RecursiveAction{
+	private static final long serialVersionUID = 1L;
 	Enviroment env;
 	int from;
 	int to;
