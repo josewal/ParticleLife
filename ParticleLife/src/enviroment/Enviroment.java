@@ -180,9 +180,7 @@ public class Enviroment {
 		applyParticleInteractionsVectors();
 
 		updateParticles(dt);
-
-		boundAllParticles();
-
+		
 		shGrid.update();
 	}
 
@@ -198,12 +196,6 @@ public class Enviroment {
 	public void updateParticles(double dt) {
 		UpdateParticleTask task = new UpdateParticleTask(this, 0, particles.size(), dt);
 		WORKERS_POOL.invoke(task);
-	}
-
-	public void boundAllParticles() {
-		for (Particle particle : shGrid.getElements()) {
-			boundParticle(particle);
-		}
 	}
 
 	public void boundParticle(Particle particle) {
