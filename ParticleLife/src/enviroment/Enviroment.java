@@ -15,6 +15,7 @@ import hashgrid.SpatialHashGrid;
 import main.Config;
 import particle.Particle;
 import particle.ParticleFactory;
+import task.UpdateParticleTask;
 import task.interactionCalculationTask;
 import vector.Vector2D;
 
@@ -70,11 +71,15 @@ public class Enviroment {
 
 	private void calculateAirResistanceVectors() {
 		for (int i = 0; i < airResistanceVectors.size(); i++) {
-			airResistanceVectors.get(i).set(getParticle(i).getVel());
-			airResistanceVectors.get(i).multiply(airResistanceVectors.get(i).getLength());
-			airResistanceVectors.get(i).multiply(-conf.airResistanceCoef);
+			calculateAirResistanceVector(i);
 		}
 	}
+	
+	public void calculateAirResistanceVector(int i) {
+		airResistanceVectors.get(i).set(getParticle(i).getVel());
+		airResistanceVectors.get(i).multiply(airResistanceVectors.get(i).getLength());
+		airResistanceVectors.get(i).multiply(-conf.airResistanceCoef);
+	} 
 
 	private void applyAirResistanceVectors() {
 		for (int i = 0; i < airResistanceVectors.size(); i++) {
@@ -130,7 +135,6 @@ public class Enviroment {
 	public void executeInteractionCalculationTasks() {
 		zeroOutNetInteractionsMap();
 		WORKERS_POOL.invoke(new interactionCalculationTask(this, 0, particles.size(), conf.taskSize));
-		
 
 	}
 	
@@ -169,11 +173,10 @@ public class Enviroment {
 		}
 	}
 
-	public void update(double dt) {
-		calculateAirResistanceVectors();
-		applyAirResistanceVectors();
-		
+	public void update(double dt) {		
 		executeInteractionCalculationTasks();
+		
+		applyAirResistanceVectors();
 		applyParticleInteractionsVectors();
 
 		updateParticles(dt);
@@ -193,9 +196,8 @@ public class Enviroment {
 	}
 
 	public void updateParticles(double dt) {
-		for (Particle particle : shGrid.getElements()) {
-			particle.update(dt);
-		}
+		UpdateParticleTask task = new UpdateParticleTask(this, 0, particles.size(), dt);
+		WORKERS_POOL.invoke(task);
 	}
 
 	public void boundAllParticles() {
