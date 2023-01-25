@@ -18,7 +18,7 @@ public class MultiForce {
 	public void addForce(SingleForce force) {
 		colorToForceMap.put(force.color, force);
 		maxRadius = Math.max(maxRadius, force.maxRadius);
-		avgMinRadius = ((colorToForceMap.size() - 1) * avgMinRadius + force.minRadius) / colorToForceMap.size();
+//		avgMinRadius = ((colorToForceMap.size() - 1) * avgMinRadius + force.minRadius) / colorToForceMap.size();
 	}
 
 	public double getForceMaxRadius(Color clr) {

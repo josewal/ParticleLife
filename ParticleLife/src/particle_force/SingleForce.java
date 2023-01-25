@@ -5,45 +5,43 @@ import java.awt.Color;
 import vector.Vector2D;
 
 public class SingleForce {
-	public double minRadius;
-	public double midRadius;
 	public double maxRadius;
+	
+	public double beta;
 	
 	public double chargeAtMidDist;
 	public double chargeAtZeroDist;
 
 	public Color color;
 
-	public SingleForce(double rMin, double rMax, double repulsionCharge, double midCharge, Color color) {
+	public SingleForce(double beta, double rMax, double repulsionCharge, double midCharge, Color color) {
 		super();
-		if (rMin >= rMax) {
-			throw new Error("rMin >= rMax");
+		if (beta >= 1 || beta <= 0) {
+			throw new Error("beta not from (0,1)");
 		}
 
-		this.minRadius = rMin;
-		this.midRadius = (rMin + rMax) / 2;
+		this.beta = beta;
 		this.maxRadius = rMax;
 		this.chargeAtMidDist = midCharge;
 		this.chargeAtZeroDist = repulsionCharge;
 		this.color = color;
 	}
 
-	public double getStrength(double dist) {
-		if (dist < minRadius) {
-			return -(dist - minRadius) / (minRadius - 0) * chargeAtZeroDist;
+	public double getStrength(double dist) {	
+		dist /= maxRadius;
+		if(dist < this.beta) {
+			return -chargeAtZeroDist * (dist/beta - 1);
 		}
-		if (dist < midRadius) {
-			return (dist - minRadius) / (midRadius - minRadius) * chargeAtMidDist;
+		
+		if(this.beta < dist && dist < 1) {
+			return chargeAtMidDist * (1 - Math.abs(2*dist - 1 - beta)/(1-beta));
 		}
-		if (dist < maxRadius) {
-			return -(dist - maxRadius) / (maxRadius - midRadius) * chargeAtMidDist;
-		}
+		
 		return 0;
 	}
 
 
 	public Vector2D calculateForceNotNormilizedDirection(Vector2D relativePosition, Vector2D relativeVel) {
-//		TODO: instatiates a lot of vectors
 		Vector2D direction;
 
 		if (relativePosition.getLengthSq() != 0) {
@@ -54,8 +52,8 @@ public class SingleForce {
 			return relativeVel;
 		}
 
-//		direction = Vector2D.randomInRange(-1, 1, -1, 1);
-		direction = new Vector2D(1,0);
+		direction = Vector2D.randomInRange(-1, 1, -1, 1);
+//		direction = new Vector2D(1,0);
 		return direction;
 
 	}
@@ -63,8 +61,12 @@ public class SingleForce {
 	public Vector2D getForceVector(Vector2D relativePosition, Vector2D relativeVel) {
 		Vector2D direction = calculateForceNotNormilizedDirection(relativePosition, relativeVel);
 		double dist = relativePosition.getLength();
+		
 		double strength = getStrength(dist);
-		direction.multiply(strength/dist);
+		direction.multiply(1/dist);
+		direction.multiply(strength);
+		direction.multiply(maxRadius);
+
 		return direction;
 	}
 }
