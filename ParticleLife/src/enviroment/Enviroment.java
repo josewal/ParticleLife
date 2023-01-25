@@ -4,7 +4,6 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -68,32 +67,12 @@ public class Enviroment {
 	public Particle getParticle(int idx) {
 		return particles.get(idx);
 	}
-
-	private void calculateAirResistanceVectors() {
-		for (int i = 0; i < airResistanceVectors.size(); i++) {
-			calculateAirResistanceVector(i);
-		}
-	}
 	
 	public void calculateAirResistanceVector(int i) {
 		airResistanceVectors.get(i).set(getParticle(i).getVel());
 		airResistanceVectors.get(i).multiply(airResistanceVectors.get(i).getLength());
 		airResistanceVectors.get(i).multiply(-conf.airResistanceCoef);
 	} 
-
-	private void applyAirResistanceVectors() {
-		for (int i = 0; i < airResistanceVectors.size(); i++) {
-			getParticle(i).applyForce(airResistanceVectors.get(i));
-		}
-	}
-
-	private void applyParticleInteractionsVectors() {
-		for (HashMap.Entry<Particle, Vector2D> interaction : particleNetInteractions.entrySet()) {
-			Particle particle = interaction.getKey();
-			Vector2D force = interaction.getValue();
-			particle.applyForce(force);
-		}
-	}
 
 	public Vector2D calculateToroidalRelativePos(Vector2D to, Vector2D from) {
 		double dX = (to.x - from.x);
