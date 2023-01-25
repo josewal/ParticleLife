@@ -134,12 +134,12 @@ public class Enviroment {
 		}
 	}
 
-	public Set<Set<Particle>> gatherParticlesInInteractionRadius(Particle acter) {
+	public Set<Particle>[] gatherParticlesInInteractionRadius(Particle acter) {
 		double forceRadius = acter.force.maxRadius;
 		double queryX = acter.getX() - forceRadius;
 		double queryY = acter.getY() - forceRadius;
 
-		Set<Set<Particle>> buckets = shGrid.elementsInRectQuery(queryX, queryY, 2 * forceRadius,
+		Set<Particle>[] buckets = shGrid.elementsInRectQuery(queryX, queryY, 2 * forceRadius,
 				2 * forceRadius);
 		
 		return buckets;
@@ -201,7 +201,10 @@ public class Enviroment {
 		}
 		if (conf.drawForces) {
 			for (Particle particle : particles) {
-				particle.drawForce(g2, c);
+				particle.drawForceMaxRadius(g2, c);
+			}
+			for (Particle particle : particles) {
+				particle.drawForceMinRadius(g2, c);
 			}
 		}
 

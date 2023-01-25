@@ -27,7 +27,7 @@ public class interactionCalculationTask extends RecursiveAction {
 			Particle acter;
 			try {
 				acter = env.particles.get(i);
-				Set<Set<Particle>> interactionBuckets = env.gatherParticlesInInteractionRadius(acter);
+				Set<Particle>[] interactionBuckets = env.gatherParticlesInInteractionRadius(acter);
 				for (Set<Particle> bucket : interactionBuckets) {
 					env.acterActs(acter, bucket);
 

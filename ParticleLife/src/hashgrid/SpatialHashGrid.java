@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 import camera.Camera;
 
@@ -39,10 +38,18 @@ public class SpatialHashGrid<T extends ISpatial> {
 	}
 
 	private void setupBuckets() {
-		buckets = new ConcurrentHashMap<>(cols);
+		buckets = new ConcurrentHashMap<>();
+		
 		for (int col = 0; col < cols; col++) {
-			buckets.put(col, new ConcurrentHashMap<>(rows));
+			buckets.put(col, new ConcurrentHashMap<>());
+			
+			for (int row = 0; row < rows; row++) {
+				buckets.get(col).put(row, new HashSet<>());
+
+			}
+			
 		}
+		System.out.println(buckets.size() + " " + buckets.get(0).size());
 		bucketFilled = new boolean[cols][rows];
 	}
 
@@ -74,22 +81,26 @@ public class SpatialHashGrid<T extends ISpatial> {
 
 	public void update() {
 		clearBuckets();
+		
 		putElemementsIntoBuckets();
 	}
 
 	private void clearBuckets() {
 		for (int col = 0; col < cols; col++) {
-			buckets.get(col).clear();
+			for (int row = 0; row < rows; row++) {
+				buckets.get(col).get(row).clear();
+			}
 		}
 	}
 
 	public void putElementIntoBucket(T element) {
 		int col = getCol(element);
 		int row = getRow(element); 
-		if(!buckets.containsKey(col) || !buckets.get(col).containsKey(row)) {
-            buckets.putIfAbsent(col, new ConcurrentHashMap<>());
-            buckets.get(col).putIfAbsent(row, new HashSet<>());
-        }
+//		if(!buckets.containsKey(col) || !buckets.get(col).containsKey(row)) {
+//            buckets.putIfAbsent(col, new ConcurrentHashMap<>());
+//            buckets.get(col).putIfAbsent(row, new HashSet<>());
+//        }
+
         buckets.get(col).get(row).add(element);
 		bucketFilled[col][row] = true;
 	}
@@ -109,8 +120,9 @@ public class SpatialHashGrid<T extends ISpatial> {
 		return buckets.get(col).get(row);
 	}
 
-	public Set<Set<T>> elementsInRectQuery(double x, double y, double width, double height) {
-		Set<Set<T>> query = new HashSet<>();
+	@SuppressWarnings("unchecked")
+	public Set<T>[] elementsInRectQuery(double x, double y, double width, double height) {
+		Set<T>[] query;
 
 		int unwrappedMinCol = (int) ((x) / cellSize);
 		int unwrappedMinRow = (int) ((y) / cellSize);
@@ -119,6 +131,8 @@ public class SpatialHashGrid<T extends ISpatial> {
 
 		int queryCols = unwrappedMaxCol - unwrappedMinCol + 1;
 		int queryRows = unwrappedMaxRow - unwrappedMinRow + 1;
+		
+		query = new Set[queryCols*queryRows];
 
 		for (int i = 0; i < queryCols; i++) {
 			for (int j = 0; j < queryRows; j++) {
@@ -129,7 +143,7 @@ public class SpatialHashGrid<T extends ISpatial> {
 			
 				
 				if (buckets.containsKey(col) && buckets.get(col).containsKey(row)) {
-                    query.add(buckets.get(col).get(row));
+                    query[i*queryRows + j] = (buckets.get(col).get(row));
                 }
 			}
 		}
