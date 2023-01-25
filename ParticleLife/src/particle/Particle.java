@@ -111,7 +111,7 @@ public class Particle implements ISpatial {
 		g2.fillOval(screenX, screenY,2*radius, 2*radius);
 	}
 	
-	public void applyForce(Vector2D force) {
+	public synchronized void applyForce(Vector2D force) {
 		final double MASS = 1;
 		force.divide(MASS);
 		acc.add(force);
