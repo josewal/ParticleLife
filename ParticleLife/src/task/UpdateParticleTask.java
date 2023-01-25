@@ -30,9 +30,9 @@ public class UpdateParticleTask extends RecursiveAction{
 		if(to-from < 10) {
 			for (int i = from; i < to; i++) {
 				Particle p = env.particles.get(i);
+				p.applyForce(env.airResistanceVectors.get(i));
 				p.update(dt);
 				env.boundParticle(p);
-				
 				
 			}
 		}else {

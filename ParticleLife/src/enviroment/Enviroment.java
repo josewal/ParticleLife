@@ -30,7 +30,7 @@ public class Enviroment {
 	public ArrayList<Particle> particles;
 	public SpatialHashGrid<Particle> shGrid;
 
-	private ArrayList<Vector2D> airResistanceVectors;
+	public ArrayList<Vector2D> airResistanceVectors;
 	private ConcurrentHashMap<Particle, Vector2D> particleNetInteractions;
 
 	public Enviroment() {
@@ -150,7 +150,8 @@ public class Enviroment {
 				continue;
 			}
 			
-			addSingleInteractionToNetInteractions(actingOn, interaction);
+//			addSingleInteractionToNetInteractions(actingOn, interaction);
+			actingOn.applyForce(interaction);
 		}
 	}
 
@@ -176,8 +177,8 @@ public class Enviroment {
 	public void update(double dt) {		
 		executeInteractionCalculationTasks();
 		
-		applyAirResistanceVectors();
-		applyParticleInteractionsVectors();
+//		applyAirResistanceVectors();
+//		applyParticleInteractionsVectors();
 
 		updateParticles(dt);
 		
