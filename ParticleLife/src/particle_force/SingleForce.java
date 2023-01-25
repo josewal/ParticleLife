@@ -33,7 +33,7 @@ public class SingleForce {
 			return -chargeAtZeroDist * (dist/beta - 1);
 		}
 		
-		if(this.beta < dist && dist < 1) {
+		if( dist < 1) {
 			return chargeAtMidDist * (1 - Math.abs(2*dist - 1 - beta)/(1-beta));
 		}
 		

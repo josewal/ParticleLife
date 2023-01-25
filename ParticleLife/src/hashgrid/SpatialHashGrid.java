@@ -109,8 +109,8 @@ public class SpatialHashGrid<T extends ISpatial> {
 		return buckets.get(col).get(row);
 	}
 
-	public Set<T> elementsInRectQuery(double x, double y, double width, double height) {
-		Set<T> query = new CopyOnWriteArraySet<>();				
+	public Set<Set<T>> elementsInRectQuery(double x, double y, double width, double height) {
+		Set<Set<T>> query = new HashSet<>();
 
 		int unwrappedMinCol = (int) ((x) / cellSize);
 		int unwrappedMinRow = (int) ((y) / cellSize);
@@ -129,7 +129,7 @@ public class SpatialHashGrid<T extends ISpatial> {
 			
 				
 				if (buckets.containsKey(col) && buckets.get(col).containsKey(row)) {
-                    query.addAll(buckets.get(col).get(row));
+                    query.add(buckets.get(col).get(row));
                 }
 			}
 		}

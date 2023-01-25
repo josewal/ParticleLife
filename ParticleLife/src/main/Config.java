@@ -26,15 +26,15 @@ public class Config {
 	public final int optionsHeight = screenHeight - 2*optionsFrameY;
 
 	// SIM PARAMS
-	public double simStep = 0.05;
+	public double simStep = 0.01;
 
 	// FPS
 	public int FPS = 60;
 	public int UPF = 1; // updates per frame
 
 	// ENV PARAMS
-	public final double envWidth = 1000;
-	public final double envHeight = 1000;
+	public final double envWidth = 2000;
+	public final double envHeight = 2000;
 	public final boolean envWrapped = true;
 	
 	public double airResistanceCoef = 0.1;
@@ -42,10 +42,10 @@ public class Config {
 	//MULTITHREADING
 	public final int numberOfThreads = Runtime.getRuntime().availableProcessors();
 //	public final int taskSize = 3000/numberOfThreads + 1;
-	public final int taskSize = 10;
+	public final int taskSize = 5;
 
 	// SHGRID PARAMS
-	public double cellSize = 200;
+	public double cellSize = 90;
 	public int cols = (int) (envWidth / cellSize);
 	public int rows = (int) (envHeight / cellSize);
 
@@ -62,8 +62,8 @@ public class Config {
 	public final double cameraDefaultZoom = Math.min((screenWidth-50)/envWidth,(screenHeight-50)/envHeight);
 
 	// PARTICLE SET
-	public int[] startAmounts = { 1000, 0, 0, 0};
-	public SingleForce redOnRed = new SingleForce(0.4, 100, 3, -2, Color.RED);
+	public int[] startAmounts = { 2000, 0, 0, 2000};
+	public SingleForce redOnRed = new SingleForce(0.9, 20, 5, 0, Color.RED);
 	public SingleForce redOnGreen = new SingleForce(0.5, 50, 2, 2, Color.GREEN);
 	public SingleForce redOnYellow = new SingleForce(0.3, 50, 1, -1, Color.YELLOW);
 	public SingleForce redOnCyan = new SingleForce(0.3, 50, 1, -1, Color.CYAN);
@@ -80,19 +80,19 @@ public class Config {
 	public SingleForce yellowOnYellow = new SingleForce(0.3, 70, 2, 2, Color.YELLOW);
 	public SingleForce yellowOnCyan = new SingleForce(0.3, 50, 1, -1, Color.CYAN);
 
-	public SingleForce cyanOnRed = new SingleForce(0.3, 50, 1, -1, Color.RED);
+	public SingleForce cyanOnRed = new SingleForce(0.3, 50, 1, 1, Color.RED);
 	public SingleForce cyanOnGreen = new SingleForce(0.3, 51, 2, 0, Color.GREEN);
 	public SingleForce cyanOnYellow = new SingleForce(0.3, 70, 2, 2, Color.YELLOW);
-	public SingleForce cyanOnCyan = new SingleForce(0.3, 50, 1, -1, Color.CYAN);
+	public SingleForce cyanOnCyan = new SingleForce(0.9, 20, 5, 0, Color.CYAN);
 
 	public final SingleForce[][] forceMatrix = { { redOnRed, redOnGreen, redOnYellow, redOnCyan}, { greenOnRed, greenOnGreen, greenOnYellow, greenOnCyan}, {yellowOnRed, yellowOnGreen, yellowOnYellow, yellowOnCyan}, 	{cyanOnRed, cyanOnGreen, cyanOnYellow, cyanOnCyan}
  };
 	
 	//DRAW TOGGLES
 	public boolean drawFPS = true;
-	public boolean drawForces = false;
+	public boolean drawForces = true;
 	public boolean drawCamera = false;
 	public boolean drawEnvBorder = false;
-	public boolean drawSHGrid = false;
+	public boolean drawSHGrid = true;
 
 }

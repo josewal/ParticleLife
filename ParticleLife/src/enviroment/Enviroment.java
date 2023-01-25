@@ -134,14 +134,15 @@ public class Enviroment {
 		}
 	}
 
-	public Set<Particle> gatherParticlesInInteractionRadius(Particle acter) {
+	public Set<Set<Particle>> gatherParticlesInInteractionRadius(Particle acter) {
 		double forceRadius = acter.force.maxRadius;
 		double queryX = acter.getX() - forceRadius;
 		double queryY = acter.getY() - forceRadius;
 
-		Set<Particle> actingOnParticles = shGrid.elementsInRectQuery(queryX, queryY, 2 * forceRadius,
+		Set<Set<Particle>> buckets = shGrid.elementsInRectQuery(queryX, queryY, 2 * forceRadius,
 				2 * forceRadius);
-		return actingOnParticles;
+		
+		return buckets;
 	}
 
 	public void addSingleInteractionToNetInteractions(Particle actingOn, Vector2D interaction) {
